@@ -407,6 +407,23 @@ Transform:
   m_PrefabParentObject: {fileID: 4933460620124638, guid: b1d95c04dd54e434aa65855a0f77d30f,
     type: 2}
   m_PrefabInternal: {fileID: 69682441}
+--- !u!1 &75105102 stripped
+GameObject:
+  m_PrefabParentObject: {fileID: 1006356879557798, guid: 391882f14be491c40962add653844907,
+    type: 2}
+  m_PrefabInternal: {fileID: 967473431}
+--- !u!65 &75105105
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 75105102}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.75590956, y: 1.2133604, z: 0.654637}
+  m_Center: {x: 0, y: 0.6066802, z: -2.155361e-15}
 --- !u!1 &86272456
 GameObject:
   m_ObjectHideFlags: 0
@@ -835,6 +852,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 169135432}
+  - component: {fileID: 169135433}
   m_Layer: 0
   m_Name: GameBoard
   m_TagString: Untagged
@@ -865,6 +883,17 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &169135433
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 169135431}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 09b3dd0c3e7f4584986117491543f12e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &195918789
 GameObject:
   m_ObjectHideFlags: 0
@@ -3549,7 +3578,13 @@ Prefab:
       propertyPath: m_LocalScale.z
       value: 0.8
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    - target: {fileID: 65062664338134884, guid: 391882f14be491c40962add653844907,
+        type: 2}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 65062664338134884, guid: 391882f14be491c40962add653844907, type: 2}
   m_ParentPrefab: {fileID: 100100000, guid: 391882f14be491c40962add653844907, type: 2}
   m_IsPrefabParent: 0
 --- !u!4 &967473432 stripped

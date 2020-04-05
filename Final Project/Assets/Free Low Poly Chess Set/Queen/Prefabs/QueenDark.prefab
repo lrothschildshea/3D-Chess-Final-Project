@@ -21,6 +21,7 @@ GameObject:
   - component: {fileID: 4213819079365966}
   - component: {fileID: 33923300791892018}
   - component: {fileID: 23259757595946094}
+  - component: {fileID: 65971132905529242}
   m_Layer: 0
   m_Name: QueenDark
   m_TagString: Untagged
@@ -82,3 +83,15 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1471985601831630}
   m_Mesh: {fileID: 4300000, guid: 8d213db23e89f6b4fa3d427f07a32b13, type: 3}
+--- !u!65 &65971132905529242
+BoxCollider:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1471985601831630}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.8763499, y: 1.7013237, z: 0.7589414}
+  m_Center: {x: 0, y: 0.8506619, z: 0}

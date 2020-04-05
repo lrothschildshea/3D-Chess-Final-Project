@@ -21,6 +21,7 @@ GameObject:
   - component: {fileID: 4684522381995130}
   - component: {fileID: 33847774386592710}
   - component: {fileID: 23238399111400190}
+  - component: {fileID: 65904560979015700}
   m_Layer: 0
   m_Name: RookDark
   m_TagString: Untagged
@@ -82,3 +83,15 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1211746330687442}
   m_Mesh: {fileID: 4300000, guid: 4c7fefe9f4d55e44398c01a6266ef093, type: 3}
+--- !u!65 &65904560979015700
+BoxCollider:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1211746330687442}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.895717, y: 1.3155541, z: 0.7757138}
+  m_Center: {x: 0, y: 0.6577771, z: 0}

@@ -21,6 +21,7 @@ GameObject:
   - component: {fileID: 4071798522976028}
   - component: {fileID: 33143280845688428}
   - component: {fileID: 23939737083662754}
+  - component: {fileID: 65531024858688094}
   m_Layer: 0
   m_Name: KnightDark
   m_TagString: Untagged
@@ -82,3 +83,15 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1179637952412708}
   m_Mesh: {fileID: 4300000, guid: 3d375d4a1907b3f4098bb64446492fed, type: 3}
+--- !u!65 &65531024858688094
+BoxCollider:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1179637952412708}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.895717, y: 1.25607, z: 0.83156425}
+  m_Center: {x: 0, y: 0.628035, z: 0.027925223}

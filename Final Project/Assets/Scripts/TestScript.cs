@@ -60,10 +60,36 @@ public class TestScript : MonoBehaviour {
         }
     }
 
-    bool isDarkPiece(GameObject gamePiece)
-    {
+    bool isDarkPiece(GameObject gamePiece){
         return darkPieces.Contains(gamePiece);
     }
+
+	bool isLightPiece(GameObject gamePiece){
+        return lightPieces.Contains(gamePiece);
+    }
+
+	bool isTile(GameObject gamePiece){
+        return tiles.Contains(gamePiece);
+    }
+
+	bool isStand(GameObject gamePiece){
+		bool isRod = gamePiece.name.Contains("Rod");
+		bool isPlatform = gamePiece.name.Contains("Platform");
+		bool isStand = stands.Contains(gamePiece);
+		return (isRod || isPlatform || isStand);
+	}
+
+	void resetForNextAction(){
+		selectedPiece = null;
+		selectedTile = null;
+		selectedPlatform = null;
+		selectedPlatformLoc = null;
+		moving = false;
+		selectedPieceColor = Color.red;
+		selectedTileColor = Color.red;
+		selectedPlatformColor = Color.red;
+		selectedPlatformLocColor = Color.red;
+	}
 	
 	// Update is called once per frame
 	void Update () {
@@ -78,51 +104,43 @@ public class TestScript : MonoBehaviour {
 			Ray ray = Camera.main.ScreenPointToRay( Input.mousePosition );
 			RaycastHit hit;
 			
-			if( Physics.Raycast(ray, out hit, 100)){
-				Debug.Log( hit.transform.gameObject.name );
+			if(Physics.Raycast(ray, out hit, 100)){
+				GameObject clicked = hit.transform.gameObject;
 
                 //NEED TO CONFIRM NOT TRYING TO MOVE PIECE OR PLATFORM!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
-                //use list of pieces to get actual confirmation
-                if (!hit.transform.gameObject.name.Contains("Cube") && selectedPiece == null && !(hit.transform.gameObject.name.Contains("Rod") || hit.transform.gameObject.name.Contains("Platform"))){
-					selectedPiece = hit.transform.gameObject;
-					selectedPieceColor = hit.transform.gameObject.GetComponent<Renderer>().material.color;
-					hit.transform.gameObject.GetComponent<Renderer>().material.color = Color.yellow;
+                if ((isDarkPiece(clicked) || isLightPiece(clicked)) && selectedPiece == null){
+					selectedPiece = clicked;
+					selectedPieceColor = clicked.GetComponent<Renderer>().material.color;
+					clicked.GetComponent<Renderer>().material.color = Color.yellow;
 				}
 
-				if(selectedPiece != null && hit.transform.gameObject.name.Contains("Cube") && !(hit.transform.gameObject.name.Contains("Rod") || hit.transform.gameObject.name.Contains("Platform"))){
+				if(selectedPiece != null && isTile(clicked)){
 
-					if(tileAvailable(hit.transform.gameObject, selectedPiece)){
-						selectedTile = hit.transform.gameObject;
-						selectedTileColor = hit.transform.gameObject.GetComponent<Renderer>().material.color;
-						hit.transform.gameObject.GetComponent<Renderer>().material.color = Color.yellow;
+					if(tileAvailable(clicked, selectedPiece)){
+						selectedTile = clicked;
+						selectedTileColor = clicked.GetComponent<Renderer>().material.color;
+						clicked.GetComponent<Renderer>().material.color = Color.yellow;
 						moving = true;
 					}
 
 				}
 
-				if(selectedPlatform == null && (hit.transform.gameObject.name.Contains("Rod") || hit.transform.gameObject.name.Contains("Platform"))){
-					//DELETE THIS LATER AND FIX ABOVE IF STATEMENT THIS IS REALLY BAD AND I HATE IT.
-					selectedPiece = null;
-
-
-					GameObject parent = hit.transform.gameObject.transform.parent.gameObject;
+				if(selectedPlatform == null && isStand(clicked)){
+					GameObject parent = clicked.transform.parent.gameObject;
 					selectedPlatformColor = parent.transform.GetChild(0).gameObject.GetComponent<Renderer>().material.color;
 					parent.transform.GetChild(0).gameObject.GetComponent<Renderer>().material.color = Color.green;
 					parent.transform.GetChild(1).gameObject.GetComponent<Renderer>().material.color = Color.green;
 					selectedPlatform = parent.transform.parent.gameObject;
 				}
 
-				if(selectedPlatform != null && hit.transform.gameObject.name.Contains("Cylinder")){
-					//DELETE THIS LATER AND FIX ABOVE IF STATEMENT THIS IS REALLY BAD AND I HATE IT.
-					selectedPiece = null;
-
+				if(selectedPlatform != null && clicked.name.Contains("Peg")){
 					//THE CYLINDERS COLOR IS STILL BROKEN
 
-					selectedPlatformLoc = hit.transform.gameObject;
-					selectedPlatformLocColor = hit.transform.gameObject.GetComponent<Renderer>().material.color;
-					hit.transform.gameObject.GetComponent<Renderer>().material.color = Color.green;
+					selectedPlatformLoc = clicked;
+					selectedPlatformLocColor = clicked.GetComponent<Renderer>().material.color;
+					clicked.GetComponent<Renderer>().material.color = Color.green;
 					moving = true;
 				}
 
@@ -140,12 +158,7 @@ public class TestScript : MonoBehaviour {
 					selectedPiece.transform.position = location;
 					selectedPiece.GetComponent<Renderer>().material.color = selectedPieceColor;
 					selectedTile.GetComponent<Renderer>().material.color = selectedTileColor;
-
-					moving = false;
-					selectedPiece = null;
-					selectedTile = null;
-					selectedPieceColor = Color.red;
-					selectedTileColor = Color.red;
+					resetForNextAction();
 				}
 			}
 
@@ -163,20 +176,11 @@ public class TestScript : MonoBehaviour {
 					selectedPlatform.transform.position = location;
 					selectedPlatform.transform.GetChild(4).transform.GetChild(0).gameObject.GetComponent<Renderer>().material.color = selectedPlatformColor;
 					selectedPlatform.transform.GetChild(4).transform.GetChild(1).gameObject.GetComponent<Renderer>().material.color = selectedPlatformColor;
-
-
 					selectedPlatformLoc.GetComponent<Renderer>().material.color = selectedPlatformLocColor;
-
-					moving = false;
-					selectedPlatform = null;
-					selectedPlatformLoc = null;
-					selectedPlatformColor = Color.red;
-					selectedPlatformLocColor = Color.red;
+					resetForNextAction();
 				}
 			}
-
 		}
-
 	}
 
 

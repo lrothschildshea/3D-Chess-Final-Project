@@ -98,11 +98,6 @@ public class TestScript : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-		//gets child object by index
-		//Debug.Log(transform.GetChild(0).gameObject);
-
-
-
 		//detect the object that has been clicked and change its color
 		if(Input.GetMouseButtonDown(0) && !moving) {
 			Ray ray = Camera.main.ScreenPointToRay( Input.mousePosition );

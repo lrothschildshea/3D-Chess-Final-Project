@@ -79,6 +79,10 @@ public class TestScript : MonoBehaviour {
 		return (isRod || isPlatform || isStand);
 	}
 
+	bool isPeg(GameObject gamePiece){
+        return pegs.Contains(gamePiece);
+    }
+
 	void resetForNextAction(){
 		selectedPiece = null;
 		selectedTile = null;
@@ -107,17 +111,15 @@ public class TestScript : MonoBehaviour {
 			if(Physics.Raycast(ray, out hit, 100)){
 				GameObject clicked = hit.transform.gameObject;
 
-                //NEED TO CONFIRM NOT TRYING TO MOVE PIECE OR PLATFORM!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
-                if ((isDarkPiece(clicked) || isLightPiece(clicked)) && selectedPiece == null){
+				//click on piece
+                if ((isDarkPiece(clicked) || isLightPiece(clicked)) && selectedPiece == null && selectedPlatform == null){
 					selectedPiece = clicked;
 					selectedPieceColor = clicked.GetComponent<Renderer>().material.color;
 					clicked.GetComponent<Renderer>().material.color = Color.yellow;
 				}
 
+				//click on destination tile
 				if(selectedPiece != null && isTile(clicked)){
-
 					if(tileAvailable(clicked, selectedPiece)){
 						selectedTile = clicked;
 						selectedTileColor = clicked.GetComponent<Renderer>().material.color;
@@ -127,7 +129,8 @@ public class TestScript : MonoBehaviour {
 
 				}
 
-				if(selectedPlatform == null && isStand(clicked)){
+				//click on stand
+				if(isStand(clicked) && selectedPlatform == null && selectedPiece == null){
 					GameObject parent = clicked.transform.parent.gameObject;
 					selectedPlatformColor = parent.transform.GetChild(0).gameObject.GetComponent<Renderer>().material.color;
 					parent.transform.GetChild(0).gameObject.GetComponent<Renderer>().material.color = Color.green;
@@ -135,9 +138,8 @@ public class TestScript : MonoBehaviour {
 					selectedPlatform = parent.transform.parent.gameObject;
 				}
 
-				if(selectedPlatform != null && clicked.name.Contains("Peg")){
-					//THE CYLINDERS COLOR IS STILL BROKEN
-
+				//click on destination peg
+				if(selectedPlatform != null && isPeg(clicked)){
 					selectedPlatformLoc = clicked;
 					selectedPlatformLocColor = clicked.GetComponent<Renderer>().material.color;
 					clicked.GetComponent<Renderer>().material.color = Color.green;

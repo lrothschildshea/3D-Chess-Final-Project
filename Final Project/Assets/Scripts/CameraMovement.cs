@@ -11,36 +11,31 @@ public class CameraMovement : MonoBehaviour {
 	private float maxZoomDist = 25f;
 	private float minCameraHeight = 12f;
 	private float maxCameraHeight = 30f;
-	private float maxHorizontalRotationAmt = 15f;
-	private float horizontalRotationSpeed = 50f;
-	private float maxVerticalRotationAmt = 15f;
 
 	private GameObject mainCamera;
-	private Vector3 initialCameraAngle;
 
 	// Use this for initialization
 	void Start () {
 		mainCamera = GameObject.Find("Main Camera");
 		mainCamera.transform.LookAt(transform);
-		initialCameraAngle = mainCamera.transform.eulerAngles;
 	}
 	
 	// Update is called once per frame
 	void Update () {
 
 		//camera rotation
-		if(Input.GetKey(KeyCode.A)){
+		if(Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)){
 			transform.eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y + cameraHorizontalSpeed*Time.deltaTime, transform.eulerAngles.z);
 		}
-		if(Input.GetKey(KeyCode.D)){
+		if(Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)){
 			transform.eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y - cameraHorizontalSpeed*Time.deltaTime, transform.eulerAngles.z);
 		}
 		
 		//camera height
-		if(Input.GetKey(KeyCode.W) && transform.position.y < maxCameraHeight){
+		if((Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow)) && transform.position.y < maxCameraHeight){
 			transform.position = new Vector3(transform.position.x, transform.position.y + cameraVerticalSpeed*Time.deltaTime, transform.position.z);
 		}
-		if(Input.GetKey(KeyCode.S) && transform.position.y > minCameraHeight){
+		if((Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) && transform.position.y > minCameraHeight){
 			transform.position = new Vector3(transform.position.x, transform.position.y - cameraVerticalSpeed*Time.deltaTime, transform.position.z);
 		}
 

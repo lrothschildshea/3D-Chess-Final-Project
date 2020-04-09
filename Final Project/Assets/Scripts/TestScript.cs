@@ -14,10 +14,51 @@ public class TestScript : MonoBehaviour {
 	private Color selectedPlatformColor = Color.red;
 	private Color selectedPlatformLocColor = Color.red;
 
+    private GameObject gameBoard;
+    private List<GameObject> lightPieces;
+    private List<GameObject> darkPieces;
+    private List<GameObject> tiles;
+    private List<GameObject> pegs;
+    private List<GameObject> stands;
+
+
 	// Use this for initialization
 	void Start () {
-
-	}
+        lightPieces = new List<GameObject>();
+        darkPieces = new List<GameObject>();
+        tiles = new List<GameObject>();
+        pegs = new List<GameObject>();
+        stands = new List<GameObject>();
+        //get lists of objects used throughout the game
+        gameBoard = GameObject.Find("GameBoard");
+        foreach(Transform group in gameBoard.transform)
+        {
+            foreach(Transform piece in group)
+            {
+                GameObject gamePiece = piece.gameObject;
+                if(gamePiece.name.Contains("Light"))
+                {
+                    lightPieces.Add(gamePiece);
+                }
+                if (gamePiece.name.Contains("Dark"))
+                {
+                    darkPieces.Add(gamePiece);
+                }
+                if (gamePiece.name.Contains("Tile"))
+                {
+                    tiles.Add(gamePiece);
+                }
+                if (gamePiece.name.Contains("Peg"))
+                {
+                    pegs.Add(gamePiece);
+                }
+                if (gamePiece.name.Contains("Stand"))
+                {
+                    stands.Add(gamePiece);
+                }
+            }
+        }
+    }
 	
 	// Update is called once per frame
 	void Update () {

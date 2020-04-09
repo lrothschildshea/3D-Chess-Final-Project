@@ -59,6 +59,11 @@ public class TestScript : MonoBehaviour {
             }
         }
     }
+
+    bool isDarkPiece(GameObject gamePiece)
+    {
+        return darkPieces.Contains(gamePiece);
+    }
 	
 	// Update is called once per frame
 	void Update () {
@@ -76,12 +81,11 @@ public class TestScript : MonoBehaviour {
 			if( Physics.Raycast(ray, out hit, 100)){
 				Debug.Log( hit.transform.gameObject.name );
 
+                //NEED TO CONFIRM NOT TRYING TO MOVE PIECE OR PLATFORM!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-				//NEED TO CONFIRM NOT TRYING TO MOVE PIECE OR PLATFORM!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-
-				//use list of pieces to get actual confirmation
-				if(!hit.transform.gameObject.name.Contains("Cube") && selectedPiece == null && !(hit.transform.gameObject.name.Contains("Rod") || hit.transform.gameObject.name.Contains("Platform"))){
+                //use list of pieces to get actual confirmation
+                if (!hit.transform.gameObject.name.Contains("Cube") && selectedPiece == null && !(hit.transform.gameObject.name.Contains("Rod") || hit.transform.gameObject.name.Contains("Platform"))){
 					selectedPiece = hit.transform.gameObject;
 					selectedPieceColor = hit.transform.gameObject.GetComponent<Renderer>().material.color;
 					hit.transform.gameObject.GetComponent<Renderer>().material.color = Color.yellow;

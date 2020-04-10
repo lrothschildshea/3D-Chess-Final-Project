@@ -21,9 +21,20 @@ public class TestScript : MonoBehaviour {
     private List<GameObject> pegs;
     private List<GameObject> stands;
 
+	private int lightCapturedCounter;
+	private float[,] lightCapturedPiecesLocations;
+	private int darkCapturedCounter;
+	private float[,] darkCapturedPiecesLocations;
+	private float capturedY;
+
+	private GameObject capturedPiece;
+
+	bool lightsTurn;
+
 
 	// Use this for initialization
 	void Start () {
+		lightsTurn = true;
         lightPieces = new List<GameObject>();
         darkPieces = new List<GameObject>();
         tiles = new List<GameObject>();
@@ -31,33 +42,60 @@ public class TestScript : MonoBehaviour {
         stands = new List<GameObject>();
         //get lists of objects used throughout the game
         gameBoard = GameObject.Find("GameBoard");
-        foreach(Transform group in gameBoard.transform)
-        {
-            foreach(Transform piece in group)
-            {
+        foreach(Transform group in gameBoard.transform){
+            foreach(Transform piece in group){
                 GameObject gamePiece = piece.gameObject;
-                if(gamePiece.name.Contains("Light"))
-                {
+                if(gamePiece.name.Contains("Light")){
                     lightPieces.Add(gamePiece);
                 }
-                if (gamePiece.name.Contains("Dark"))
-                {
+                if (gamePiece.name.Contains("Dark")){
                     darkPieces.Add(gamePiece);
                 }
-                if (gamePiece.name.Contains("Tile"))
-                {
+                if (gamePiece.name.Contains("Tile")){
                     tiles.Add(gamePiece);
                 }
-                if (gamePiece.name.Contains("Peg"))
-                {
+                if (gamePiece.name.Contains("Peg")){
                     pegs.Add(gamePiece);
                 }
-                if (gamePiece.name.Contains("Stand"))
-                {
+                if (gamePiece.name.Contains("Stand")){
                     stands.Add(gamePiece);
                 }
             }
         }
+		lightCapturedCounter = 0;
+		darkCapturedCounter = 0;
+		lightCapturedPiecesLocations = new float[16,2];
+		darkCapturedPiecesLocations = new float[16,2];
+
+		Vector3 capPos = GameObject.Find("Captured Dark").transform.position;
+
+		capturedY = capPos.y + .05f;
+
+		for(int i = 0; i < 2; i++){
+			for(int j = 0; j < 8; j++){
+				if(i == 0){
+					darkCapturedPiecesLocations[8*i + j, 0] = capPos.x + .5f;
+				} else {
+					darkCapturedPiecesLocations[8*i + j, 0] = capPos.x - .5f;
+				}
+				darkCapturedPiecesLocations[8*i + j, 1] = capPos.z - 3.5f + j;
+			}
+		}
+
+		
+		capPos = GameObject.Find("Captured Light").transform.position;
+
+		for(int i = 0; i < 2; i++){
+			for(int j = 0; j < 8; j++){
+				if(i == 0){
+					lightCapturedPiecesLocations[8*i + j, 0] = capPos.x - .5f;
+				} else {
+					lightCapturedPiecesLocations[8*i + j, 0] = capPos.x + .5f;
+				}
+				lightCapturedPiecesLocations[8*i + j, 1] = capPos.z - 3.5f + j;
+			}
+		}
+
     }
 
     bool isDarkPiece(GameObject gamePiece){
@@ -88,11 +126,13 @@ public class TestScript : MonoBehaviour {
 		selectedTile = null;
 		selectedPlatform = null;
 		selectedPlatformLoc = null;
+		capturedPiece = null;
 		moving = false;
 		selectedPieceColor = Color.red;
 		selectedTileColor = Color.red;
 		selectedPlatformColor = Color.red;
 		selectedPlatformLocColor = Color.red;
+		lightsTurn = !lightsTurn;
 	}
 	
 	// Update is called once per frame
@@ -106,8 +146,10 @@ public class TestScript : MonoBehaviour {
 			if(Physics.Raycast(ray, out hit, 100)){
 				GameObject clicked = hit.transform.gameObject;
 
+				bool myPiece = (lightsTurn && isLightPiece(clicked)) || (!lightsTurn && isDarkPiece(clicked));
+
 				//click on piece
-                if ((isDarkPiece(clicked) || isLightPiece(clicked)) && selectedPiece == null && selectedPlatform == null){
+                if (myPiece && selectedPiece == null && selectedPlatform == null && !isCaptured(clicked)){
 					selectedPiece = clicked;
 					selectedPieceColor = clicked.GetComponent<Renderer>().material.color;
 					clicked.GetComponent<Renderer>().material.color = Color.yellow;
@@ -115,11 +157,20 @@ public class TestScript : MonoBehaviour {
 
 				//click on destination tile
 				if(selectedPiece != null && isTile(clicked)){
-					if(tileAvailable(clicked, selectedPiece)){
+					int available = tileAvailable(clicked, selectedPiece);
+					if(available > 0){
 						selectedTile = clicked;
 						selectedTileColor = clicked.GetComponent<Renderer>().material.color;
 						clicked.GetComponent<Renderer>().material.color = Color.yellow;
 						moving = true;
+						if(available > 1){
+							capturedPiece = getPieceOnTile(clicked);
+							if(isLightPiece(capturedPiece)){
+								lightCapturedCounter++;
+							} else {
+								darkCapturedCounter++;
+							}
+						}
 					}
 
 				}
@@ -146,19 +197,47 @@ public class TestScript : MonoBehaviour {
 
 		if(moving){
 
+
+			//moving piece
 			if(selectedPiece != null){
 				Vector3 location = selectedTile.transform.position;
 				location.y += .05f;
 				selectedPiece.transform.position = Vector3.Lerp(selectedPiece.transform.position, location, Time.deltaTime * 3.5f);
 
-				if((selectedPiece.transform.position - location).magnitude < .02){
+				Vector3 dest = new Vector3(100000, 100000, 100000);
+
+				if(capturedPiece != null){
+					if(isLightPiece(capturedPiece)){
+						dest = new Vector3(lightCapturedPiecesLocations[lightCapturedCounter-1, 0], capturedY, lightCapturedPiecesLocations[lightCapturedCounter-1, 1]);
+						capturedPiece.transform.position = Vector3.Lerp(capturedPiece.transform.position, dest, Time.deltaTime * 3.5f);
+					} else {
+						dest = new Vector3(darkCapturedPiecesLocations[darkCapturedCounter-1, 0], capturedY, darkCapturedPiecesLocations[darkCapturedCounter-1, 1]);
+						capturedPiece.transform.position = Vector3.Lerp(capturedPiece.transform.position, dest, Time.deltaTime * 3.5f);
+					}
+				}
+
+				bool selectedClose = ((selectedPiece.transform.position - location).magnitude < .02);
+				bool noCapPiece = capturedPiece == null;
+				bool capPieceClose = capturedPiece != null && ((capturedPiece.transform.position - dest).magnitude < .02);
+
+				if(selectedClose && (noCapPiece || capPieceClose)){
 					selectedPiece.transform.position = location;
 					selectedPiece.GetComponent<Renderer>().material.color = selectedPieceColor;
 					selectedTile.GetComponent<Renderer>().material.color = selectedTileColor;
+
+					//need to add a check above not hereish
+					if(capturedPiece != null){
+						if(isLightPiece(capturedPiece)){
+							capturedPiece.transform.position = dest;
+						} else {
+							capturedPiece.transform.position = dest;
+						}
+					}
 					resetForNextAction();
 				}
 			}
 
+			//moving platform
 			if(selectedPlatform != null){
 				Vector3 location = selectedPlatformLoc.transform.position;
 
@@ -180,8 +259,45 @@ public class TestScript : MonoBehaviour {
 		}
 	}
 
+	GameObject getPieceOnTile(GameObject tile){
+		Vector3 location = tile.transform.position;
 
-	bool tileAvailable(GameObject tile, GameObject piece){
+		foreach(GameObject piece in lightPieces){
+			if((piece.transform.position - location).magnitude < .06){
+				return piece;
+			}
+		}
+		foreach(GameObject piece in darkPieces){
+			if((piece.transform.position - location).magnitude < .06){
+				return piece;
+			}
+		}
+		return null;
+	}
+
+	bool isCaptured(GameObject piece){
+
+		Vector3 capPos;
+
+		if(isLightPiece(piece)){
+			capPos = GameObject.Find("Captured Light").transform.position;
+		} else {
+			capPos = GameObject.Find("Captured Dark").transform.position;
+		}
+
+		if((piece.transform.position - capPos).magnitude < 3.6){
+			return true;
+		}
+		return false;
+
+		
+	}
+
+
+	//0 your team there
+	//1 tile empty
+	//2 enemy team there
+	int tileAvailable(GameObject tile, GameObject piece){
 		Vector3 location = tile.transform.position;
 
 		GameObject wp = GameObject.Find("White Pieces");
@@ -192,10 +308,10 @@ public class TestScript : MonoBehaviour {
 			if((child.transform.position - location).magnitude < .06){
 				if(piece.transform.parent.gameObject == wp){
 					Debug.Log("Same team is there.");
-					return false;
+					return 0;
 				} else {
 					Debug.Log("Other team is there.");
-					return true;
+					return 2;
 				}
 
 			}
@@ -206,14 +322,14 @@ public class TestScript : MonoBehaviour {
 			if((child.transform.position - location).magnitude < .06){
 				if(piece.transform.parent.gameObject == bp){
 					Debug.Log("Same team is there.");
-					return false;
+					return 0;
 				} else {
 					Debug.Log("Other team is there.");
-					return true;
+					return 2;
 				}
 
 			}
 		}
-		return true;
+		return 1;
 	}
 }

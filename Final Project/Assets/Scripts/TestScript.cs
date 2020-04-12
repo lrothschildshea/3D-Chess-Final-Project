@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class TestScript : MonoBehaviour {
 
@@ -26,10 +27,16 @@ public class TestScript : MonoBehaviour {
 	private int darkCapturedCounter;
 	private float[,] darkCapturedPiecesLocations;
 	private float capturedY;
+    private List<GameObject> availableMoves;
 
 	private GameObject capturedPiece;
 
-	bool lightsTurn;
+	private bool lightsTurn;
+
+    private Color lightTileColor;
+    private Color darkTileColor;
+
+    private List<GameObject> stationaryPawns;
 
 
 	// Use this for initialization
@@ -40,6 +47,8 @@ public class TestScript : MonoBehaviour {
         tiles = new List<GameObject>();
         pegs = new List<GameObject>();
         stands = new List<GameObject>();
+        availableMoves = new List<GameObject>();
+        stationaryPawns = new List<GameObject>();
         //get lists of objects used throughout the game
         gameBoard = GameObject.Find("GameBoard");
         foreach(Transform group in gameBoard.transform){
@@ -59,6 +68,10 @@ public class TestScript : MonoBehaviour {
                 }
                 if (gamePiece.name.Contains("Stand")){
                     stands.Add(gamePiece);
+                }
+                if (gamePiece.name.Contains("Pawn"))
+                {
+                    stationaryPawns.Add(gamePiece);
                 }
             }
         }
@@ -96,6 +109,8 @@ public class TestScript : MonoBehaviour {
 			}
 		}
 
+        lightTileColor = tiles[1].GetComponent<Renderer>().material.color;
+        darkTileColor = tiles[0].GetComponent<Renderer>().material.color;
     }
 
     bool isDarkPiece(GameObject gamePiece){
@@ -133,6 +148,7 @@ public class TestScript : MonoBehaviour {
 		selectedPlatformColor = Color.red;
 		selectedPlatformLocColor = Color.red;
 		lightsTurn = !lightsTurn;
+        availableMoves = null;
 	}
 	
 	// Update is called once per frame
@@ -153,12 +169,28 @@ public class TestScript : MonoBehaviour {
 					selectedPiece = clicked;
 					selectedPieceColor = clicked.GetComponent<Renderer>().material.color;
 					clicked.GetComponent<Renderer>().material.color = Color.yellow;
+                    availableMoves = getAvailableMoves(selectedPiece);
 				}
 
 				//click on destination tile
-				if(selectedPiece != null && isTile(clicked)){
-					int available = tileAvailable(clicked, selectedPiece);
+				if(selectedPiece != null && isTile(clicked) && availableMoves.Contains(clicked)){
+                    int available = tileAvailable(clicked, selectedPiece);
 					if(available > 0){
+                        for(int i = 0; i < availableMoves.Count; i++)
+                        {
+                            if(isLightTile(availableMoves[i]))
+                            {
+                                availableMoves[i].GetComponent<Renderer>().material.color = lightTileColor;
+                            }
+                            else
+                            {
+                                availableMoves[i].GetComponent<Renderer>().material.color = darkTileColor;
+                            }
+                        }
+                        if (selectedPiece.name.Contains("Pawn"))
+                        {
+                            stationaryPawns.Remove(selectedPiece);
+                        }
 						selectedTile = clicked;
 						selectedTileColor = clicked.GetComponent<Renderer>().material.color;
 						clicked.GetComponent<Renderer>().material.color = Color.yellow;
@@ -332,4 +364,53 @@ public class TestScript : MonoBehaviour {
 		}
 		return 1;
 	}
+
+    List<GameObject> getAvailableMoves(GameObject piece){
+        List<GameObject> moves = tiles;
+        if (piece.name.Contains("Pawn")){
+            moves = new List<GameObject>();
+            for(int i = 0; i < tiles.Count; i++){
+                float dist = (tiles[i].transform.position - piece.transform.position).magnitude;
+                if (isLightPiece(piece)){
+                    if (stationaryPawns.Contains(piece)){
+                        if (dist < 2.1 && tiles[i].transform.position.z > piece.transform.position.z && (Math.Abs(tiles[i].transform.position.x - piece.transform.position.x)) < 0.1){
+                            moves.Add(tiles[i]);
+                            tiles[i].GetComponent<Renderer>().material.color = Color.blue;
+                        }
+                    }
+                    else{
+                        if (dist < 1.1 && tiles[i].transform.position.z > piece.transform.position.z){
+                            moves.Add(tiles[i]);
+                            tiles[i].GetComponent<Renderer>().material.color = Color.blue;
+                        }
+                    }
+                }
+                else{
+                    if (stationaryPawns.Contains(piece)){
+                        if (dist < 2.1 && tiles[i].transform.position.z < piece.transform.position.z && (Math.Abs(tiles[i].transform.position.x - piece.transform.position.x))<0.1)
+                        {
+                            moves.Add(tiles[i]);
+                        }
+                    }
+                    else{
+                        if (dist < 1.1 && tiles[i].transform.position.z < piece.transform.position.z){
+                            moves.Add(tiles[i]);
+                        }
+                    }
+                }
+            }
+        }
+
+        for(int i  = 0; i < moves.Count; i++){
+            moves[i].GetComponent<Renderer>().material.color = Color.blue;
+        }
+        return moves;
+    }
+
+    bool isLightTile(GameObject tile){
+        if(tile.name.Contains("0 0")|| tile.name.Contains("1 1") || tile.name.Contains("2 0") || tile.name.Contains("3 1") || tile.name.Contains("0 2") || tile.name.Contains("1 3") || tile.name.Contains("2 2") || tile.name.Contains("3 3")){
+            return false;
+        }
+        return true;
+    }
 }

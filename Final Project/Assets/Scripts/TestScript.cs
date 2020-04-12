@@ -21,6 +21,7 @@ public class TestScript : MonoBehaviour {
     private List<GameObject> tiles;
     private List<GameObject> pegs;
     private List<GameObject> stands;
+    private List<GameObject> levels;
 
 	private int lightCapturedCounter;
 	private float[,] lightCapturedPiecesLocations;
@@ -49,9 +50,14 @@ public class TestScript : MonoBehaviour {
         stands = new List<GameObject>();
         availableMoves = new List<GameObject>();
         stationaryPawns = new List<GameObject>();
+        levels = new List<GameObject>();
         //get lists of objects used throughout the game
         gameBoard = GameObject.Find("GameBoard");
         foreach(Transform group in gameBoard.transform){
+            if (group.gameObject.name.Contains("Level"))
+            {
+                levels.Add(group.gameObject);
+            }
             foreach(Transform piece in group){
                 GameObject gamePiece = piece.gameObject;
                 if(gamePiece.name.Contains("Light")){
@@ -367,21 +373,26 @@ public class TestScript : MonoBehaviour {
 
     List<GameObject> getAvailableMoves(GameObject piece){
         List<GameObject> moves = tiles;
+        GameObject[] location = getLevelAndTileOfPiece(piece);
+        GameObject level = location[0];
+        GameObject tile = location[1];
+        int x = Int32.Parse(tile.name.Substring(5,1));
+        int y = Int32.Parse(tile.name.Substring(7));
+        //ADD Z TO HANDLE LEVELS BETTER
+
         if (piece.name.Contains("Pawn")){
             moves = new List<GameObject>();
-            for(int i = 0; i < tiles.Count; i++){
+            /*for(int i = 0; i < tiles.Count; i++){
                 float dist = (tiles[i].transform.position - piece.transform.position).magnitude;
                 if (isLightPiece(piece)){
                     if (stationaryPawns.Contains(piece)){
                         if (dist < 2.1 && tiles[i].transform.position.z > piece.transform.position.z && (Math.Abs(tiles[i].transform.position.x - piece.transform.position.x)) < 0.1){
                             moves.Add(tiles[i]);
-                            tiles[i].GetComponent<Renderer>().material.color = Color.blue;
                         }
                     }
                     else{
                         if (dist < 1.1 && tiles[i].transform.position.z > piece.transform.position.z){
                             moves.Add(tiles[i]);
-                            tiles[i].GetComponent<Renderer>().material.color = Color.blue;
                         }
                     }
                 }
@@ -395,6 +406,48 @@ public class TestScript : MonoBehaviour {
                     else{
                         if (dist < 1.1 && tiles[i].transform.position.z < piece.transform.position.z){
                             moves.Add(tiles[i]);
+                        }
+                    }
+                }
+            }*/
+            String candidate = "";
+            if (isLightPiece(piece)){
+                if (y + 1 < 4){
+                    candidate = "Tile " + x.ToString() + " " + (y+1).ToString();
+                    for(int i = 0; i < tiles.Count; i++){
+                        if(tiles[i].transform.parent.name == level.name && tiles[i].name == candidate){
+                            moves.Add(tiles[i]);
+                        }
+                    }
+                }
+                if(stationaryPawns.Contains(piece)){
+                    if (y + 2 < 4){
+                        candidate = "Tile " + x.ToString() + " " + (y + 2).ToString();
+                        for (int i = 0; i < tiles.Count; i++){
+                            if (tiles[i].transform.parent.name == level.name && tiles[i].name == candidate){
+                                moves.Add(tiles[i]);
+                            }
+                        }
+                    }
+                }
+            }
+            else{
+                if (y - 1 > -1){
+                    candidate = "Tile " + x.ToString() + " " + (y - 1).ToString();
+                    for (int i = 0; i < tiles.Count; i++){
+                        if (tiles[i].transform.parent.name == level.name && tiles[i].name == candidate){
+                            moves.Add(tiles[i]);
+                        }
+                    }
+                }
+                if (stationaryPawns.Contains(piece)){
+                    if (y - 2 > -1){
+                        candidate = "Tile " + x.ToString() + " " + (y - 2).ToString();
+                        for (int i = 0; i < tiles.Count; i++){
+                            if (tiles[i].transform.parent.name == level.name && tiles[i].name == candidate)
+                            {
+                                moves.Add(tiles[i]);
+                            }
                         }
                     }
                 }
@@ -412,5 +465,26 @@ public class TestScript : MonoBehaviour {
             return false;
         }
         return true;
+    }
+
+    GameObject[] getLevelAndTileOfPiece(GameObject piece){
+        GameObject level = new GameObject();
+        GameObject tile = new GameObject();
+        for(int i = 0; i < levels.Count; i++){
+            //NEED TO FIX HOW SUBLEVELS WORK!!!
+            float vert_dist = Math.Abs(piece.transform.position.y - levels[i].transform.position.y);
+            if (vert_dist < 0.052){
+                level = levels[i];
+            }
+        }
+
+        for(int i = 0; i<tiles.Count; i++){
+            float dist = (piece.transform.position - tiles[i].transform.position).magnitude;
+            if (dist < 0.052){
+                tile = tiles[i];
+            }
+        }
+
+        return new GameObject[2] {level,tile};
     }
 }

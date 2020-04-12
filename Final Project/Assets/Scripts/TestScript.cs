@@ -10,10 +10,13 @@ public class TestScript : MonoBehaviour {
 	private GameObject selectedPlatform = null;
 	private GameObject selectedPlatformLoc = null;
 	private bool moving = false;
-	private Color selectedPieceColor = Color.red;
-	private Color selectedTileColor = Color.red;
-	private Color selectedPlatformColor = Color.red;
-	private Color selectedPlatformLocColor = Color.red;
+
+	private Color lightTeamColor;
+	private Color darkTeamColor;
+	private Color lightTileColor;
+    private Color darkTileColor;
+	private Color standColor;
+	private Color pegColor;
 
     private GameObject gameBoard;
     private List<GameObject> lightPieces;
@@ -33,9 +36,6 @@ public class TestScript : MonoBehaviour {
 	private GameObject capturedPiece;
 
 	private bool lightsTurn;
-
-    private Color lightTileColor;
-    private Color darkTileColor;
 
     private List<GameObject> stationaryPawns;
 
@@ -81,6 +81,7 @@ public class TestScript : MonoBehaviour {
                 }
             }
         }
+
 		lightCapturedCounter = 0;
 		darkCapturedCounter = 0;
 		lightCapturedPiecesLocations = new float[16,2];
@@ -115,8 +116,12 @@ public class TestScript : MonoBehaviour {
 			}
 		}
 
+		lightTeamColor = lightPieces[0].GetComponent<Renderer>().material.color;
+		darkTeamColor = darkPieces[0].GetComponent<Renderer>().material.color;
         lightTileColor = tiles[1].GetComponent<Renderer>().material.color;
         darkTileColor = tiles[0].GetComponent<Renderer>().material.color;
+		standColor = stands[0].transform.GetChild(0).gameObject.GetComponent<Renderer>().material.color;
+		pegColor = pegs[0].GetComponent<Renderer>().material.color;
     }
 
     bool isDarkPiece(GameObject gamePiece){
@@ -149,10 +154,6 @@ public class TestScript : MonoBehaviour {
 		selectedPlatformLoc = null;
 		capturedPiece = null;
 		moving = false;
-		selectedPieceColor = Color.red;
-		selectedTileColor = Color.red;
-		selectedPlatformColor = Color.red;
-		selectedPlatformLocColor = Color.red;
 		lightsTurn = !lightsTurn;
         availableMoves = null;
 	}
@@ -173,7 +174,6 @@ public class TestScript : MonoBehaviour {
 				//click on piece
                 if (myPiece && selectedPiece == null && selectedPlatform == null && !isCaptured(clicked)){
 					selectedPiece = clicked;
-					selectedPieceColor = clicked.GetComponent<Renderer>().material.color;
 					clicked.GetComponent<Renderer>().material.color = Color.yellow;
                     availableMoves = getAvailableMoves(selectedPiece);
 				}
@@ -198,7 +198,6 @@ public class TestScript : MonoBehaviour {
                             stationaryPawns.Remove(selectedPiece);
                         }
 						selectedTile = clicked;
-						selectedTileColor = clicked.GetComponent<Renderer>().material.color;
 						clicked.GetComponent<Renderer>().material.color = Color.yellow;
 						moving = true;
 						if(available > 1){
@@ -216,7 +215,6 @@ public class TestScript : MonoBehaviour {
 				//click on stand
 				if(isStand(clicked) && selectedPlatform == null && selectedPiece == null){
 					GameObject parent = clicked.transform.parent.gameObject;
-					selectedPlatformColor = parent.transform.GetChild(0).gameObject.GetComponent<Renderer>().material.color;
 					parent.transform.GetChild(0).gameObject.GetComponent<Renderer>().material.color = Color.green;
 					parent.transform.GetChild(1).gameObject.GetComponent<Renderer>().material.color = Color.green;
 					selectedPlatform = parent.transform.parent.gameObject;
@@ -225,7 +223,6 @@ public class TestScript : MonoBehaviour {
 				//click on destination peg
 				if(selectedPlatform != null && isPeg(clicked)){
 					selectedPlatformLoc = clicked;
-					selectedPlatformLocColor = clicked.GetComponent<Renderer>().material.color;
 					clicked.GetComponent<Renderer>().material.color = Color.green;
 					moving = true;
 				}
@@ -260,8 +257,18 @@ public class TestScript : MonoBehaviour {
 
 				if(selectedClose && (noCapPiece || capPieceClose)){
 					selectedPiece.transform.position = location;
-					selectedPiece.GetComponent<Renderer>().material.color = selectedPieceColor;
-					selectedTile.GetComponent<Renderer>().material.color = selectedTileColor;
+					if(isLightPiece(selectedPiece)){
+						selectedPiece.GetComponent<Renderer>().material.color = lightTeamColor;
+					} else {
+						selectedPiece.GetComponent<Renderer>().material.color = darkTeamColor;
+					}
+
+					if(isLightTile(selectedTile)){
+						selectedTile.GetComponent<Renderer>().material.color = lightTileColor;
+					} else {
+						selectedTile.GetComponent<Renderer>().material.color = darkTileColor;
+					}
+					
 
 					//need to add a check above not hereish
 					if(capturedPiece != null){
@@ -288,9 +295,9 @@ public class TestScript : MonoBehaviour {
 
 				if((selectedPlatform.transform.position - location).magnitude < .02){
 					selectedPlatform.transform.position = location;
-					selectedPlatform.transform.GetChild(4).transform.GetChild(0).gameObject.GetComponent<Renderer>().material.color = selectedPlatformColor;
-					selectedPlatform.transform.GetChild(4).transform.GetChild(1).gameObject.GetComponent<Renderer>().material.color = selectedPlatformColor;
-					selectedPlatformLoc.GetComponent<Renderer>().material.color = selectedPlatformLocColor;
+					selectedPlatform.transform.GetChild(4).transform.GetChild(0).gameObject.GetComponent<Renderer>().material.color = standColor;
+					selectedPlatform.transform.GetChild(4).transform.GetChild(1).gameObject.GetComponent<Renderer>().material.color = standColor;
+					selectedPlatformLoc.GetComponent<Renderer>().material.color = pegColor;
 					resetForNextAction();
 				}
 			}
@@ -382,34 +389,6 @@ public class TestScript : MonoBehaviour {
 
         if (piece.name.Contains("Pawn")){
             moves = new List<GameObject>();
-            /*for(int i = 0; i < tiles.Count; i++){
-                float dist = (tiles[i].transform.position - piece.transform.position).magnitude;
-                if (isLightPiece(piece)){
-                    if (stationaryPawns.Contains(piece)){
-                        if (dist < 2.1 && tiles[i].transform.position.z > piece.transform.position.z && (Math.Abs(tiles[i].transform.position.x - piece.transform.position.x)) < 0.1){
-                            moves.Add(tiles[i]);
-                        }
-                    }
-                    else{
-                        if (dist < 1.1 && tiles[i].transform.position.z > piece.transform.position.z){
-                            moves.Add(tiles[i]);
-                        }
-                    }
-                }
-                else{
-                    if (stationaryPawns.Contains(piece)){
-                        if (dist < 2.1 && tiles[i].transform.position.z < piece.transform.position.z && (Math.Abs(tiles[i].transform.position.x - piece.transform.position.x))<0.1)
-                        {
-                            moves.Add(tiles[i]);
-                        }
-                    }
-                    else{
-                        if (dist < 1.1 && tiles[i].transform.position.z < piece.transform.position.z){
-                            moves.Add(tiles[i]);
-                        }
-                    }
-                }
-            }*/
             String candidate = "";
             if (isLightPiece(piece)){
                 if (y + 1 < 4){

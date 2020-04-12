@@ -182,14 +182,10 @@ public class TestScript : MonoBehaviour {
 				if(selectedPiece != null && isTile(clicked) && availableMoves.Contains(clicked)){
                     int available = tileAvailable(clicked, selectedPiece);
 					if(available > 0){
-                        for(int i = 0; i < availableMoves.Count; i++)
-                        {
-                            if(isLightTile(availableMoves[i]))
-                            {
+                        for(int i = 0; i < availableMoves.Count; i++){
+                            if(isLightTile(availableMoves[i])){
                                 availableMoves[i].GetComponent<Renderer>().material.color = lightTileColor;
-                            }
-                            else
-                            {
+                            } else {
                                 availableMoves[i].GetComponent<Renderer>().material.color = darkTileColor;
                             }
                         }
@@ -447,8 +443,9 @@ public class TestScript : MonoBehaviour {
     }
 
     GameObject[] getLevelAndTileOfPiece(GameObject piece){
-        GameObject level = new GameObject();
-        GameObject tile = new GameObject();
+		//give temp values that will be overwritten by the loops
+        GameObject level = levels[0];
+        GameObject tile = tiles[0];
         for(int i = 0; i < levels.Count; i++){
             //NEED TO FIX HOW SUBLEVELS WORK!!!
             float vert_dist = Math.Abs(piece.transform.position.y - levels[i].transform.position.y);

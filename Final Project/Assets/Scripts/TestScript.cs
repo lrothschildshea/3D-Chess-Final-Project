@@ -339,39 +339,19 @@ public class TestScript : MonoBehaviour {
 	//1 tile empty
 	//2 enemy team there
 	int tileAvailable(GameObject tile, GameObject piece){
-		Vector3 location = tile.transform.position;
-
-		GameObject wp = GameObject.Find("White Pieces");
-		GameObject bp = GameObject.Find("Black Pieces");
-
-		foreach(Transform child in wp.transform){
-
-			if((child.transform.position - location).magnitude < .06){
-				if(piece.transform.parent.gameObject == wp){
-					Debug.Log("Same team is there.");
-					return 0;
-				} else {
-					Debug.Log("Other team is there.");
-					return 2;
-				}
-
-			}
+		GameObject pieceOnTile = getPieceOnTile(tile);
+		if(pieceOnTile == null){
+			return 1;
 		}
 
-		foreach(Transform child in bp.transform){
+		bool lPiece = isLightPiece(piece);
+		bool lFoundPiece = isLightPiece(pieceOnTile);
 
-			if((child.transform.position - location).magnitude < .06){
-				if(piece.transform.parent.gameObject == bp){
-					Debug.Log("Same team is there.");
-					return 0;
-				} else {
-					Debug.Log("Other team is there.");
-					return 2;
-				}
-
-			}
+		if((lPiece && lFoundPiece) || (!lPiece && !lFoundPiece)){
+			return 0;
+		} else {
+			return 2;
 		}
-		return 1;
 	}
 
     List<GameObject> getAvailableMoves(GameObject piece){
@@ -443,9 +423,8 @@ public class TestScript : MonoBehaviour {
     }
 
     GameObject[] getLevelAndTileOfPiece(GameObject piece){
-		//give temp values that will be overwritten by the loops
-        GameObject level = levels[0];
-        GameObject tile = tiles[0];
+        GameObject level = null;
+        GameObject tile = null;
         for(int i = 0; i < levels.Count; i++){
             //NEED TO FIX HOW SUBLEVELS WORK!!!
             float vert_dist = Math.Abs(piece.transform.position.y - levels[i].transform.position.y);

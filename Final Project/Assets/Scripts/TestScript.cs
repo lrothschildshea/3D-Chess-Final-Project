@@ -148,13 +148,17 @@ public class TestScript : MonoBehaviour {
     }
 
 	void resetForNextAction(){
+		resetForNextActionWithoutTogglingTurn();
+		lightsTurn = !lightsTurn;
+	}
+
+	void resetForNextActionWithoutTogglingTurn(){
 		selectedPiece = null;
 		selectedTile = null;
 		selectedPlatform = null;
 		selectedPlatformLoc = null;
 		capturedPiece = null;
 		moving = false;
-		lightsTurn = !lightsTurn;
         availableMoves = null;
 	}
 	
@@ -168,6 +172,22 @@ public class TestScript : MonoBehaviour {
 			
 			if(Physics.Raycast(ray, out hit, 100)){
 				GameObject clicked = hit.transform.gameObject;
+
+				//deselection
+				if(clicked == selectedPiece){
+					if(isLightPiece(selectedPiece)){
+						selectedPiece.GetComponent<Renderer>().material.color = lightTeamColor;
+					} else {
+						selectedPiece.GetComponent<Renderer>().material.color = darkTeamColor;
+					}
+					resetForNextActionWithoutTogglingTurn();
+					return;
+				} else if(clicked.transform.parent.gameObject.transform.parent.gameObject == selectedPlatform){
+					selectedPlatform.transform.GetChild(4).transform.GetChild(0).gameObject.GetComponent<Renderer>().material.color = standColor;
+					selectedPlatform.transform.GetChild(4).transform.GetChild(1).gameObject.GetComponent<Renderer>().material.color = standColor;
+					resetForNextActionWithoutTogglingTurn();
+					return;
+				}
 
 				bool myPiece = (lightsTurn && isLightPiece(clicked)) || (!lightsTurn && isDarkPiece(clicked));
 

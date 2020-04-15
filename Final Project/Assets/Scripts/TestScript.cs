@@ -147,6 +147,13 @@ public class TestScript : MonoBehaviour {
         return pegs.Contains(gamePiece);
     }
 
+	bool isLightTile(GameObject tile){
+        if(tile.name.Contains("0 0")|| tile.name.Contains("1 1") || tile.name.Contains("2 0") || tile.name.Contains("3 1") || tile.name.Contains("0 2") || tile.name.Contains("1 3") || tile.name.Contains("2 2") || tile.name.Contains("3 3")){
+            return false;
+        }
+        return true;
+    }
+
 	void resetForNextAction(){
 		resetForNextActionWithoutTogglingTurn();
 		lightsTurn = !lightsTurn;
@@ -160,6 +167,7 @@ public class TestScript : MonoBehaviour {
 		capturedPiece = null;
 		moving = false;
         availableMoves = null;
+		reColorTiles(tiles);
 	}
 	
 	// Update is called once per frame
@@ -202,13 +210,7 @@ public class TestScript : MonoBehaviour {
 				if(selectedPiece != null && isTile(clicked) && availableMoves.Contains(clicked)){
                     int available = tileAvailable(clicked, selectedPiece);
 					if(available > 0){
-                        for(int i = 0; i < availableMoves.Count; i++){
-                            if(isLightTile(availableMoves[i])){
-                                availableMoves[i].GetComponent<Renderer>().material.color = lightTileColor;
-                            } else {
-                                availableMoves[i].GetComponent<Renderer>().material.color = darkTileColor;
-                            }
-                        }
+						reColorTiles(availableMoves);
                         if (selectedPiece.name.Contains("Pawn"))
                         {
                             stationaryPawns.Remove(selectedPiece);
@@ -440,13 +442,6 @@ public class TestScript : MonoBehaviour {
         return moves;
     }
 
-    bool isLightTile(GameObject tile){
-        if(tile.name.Contains("0 0")|| tile.name.Contains("1 1") || tile.name.Contains("2 0") || tile.name.Contains("3 1") || tile.name.Contains("0 2") || tile.name.Contains("1 3") || tile.name.Contains("2 2") || tile.name.Contains("3 3")){
-            return false;
-        }
-        return true;
-    }
-
     GameObject[] getLevelAndTileOfPiece(GameObject piece){
         GameObject level = null;
         GameObject tile = null;
@@ -467,4 +462,14 @@ public class TestScript : MonoBehaviour {
 
         return new GameObject[2] {level,tile};
     }
+
+	void reColorTiles(List<GameObject> tilesToBeColored){
+		for(int i = 0; i < tilesToBeColored.Count; i++){
+			if(isLightTile(tilesToBeColored[i])){
+				tilesToBeColored[i].GetComponent<Renderer>().material.color = lightTileColor;
+			} else {
+				tilesToBeColored[i].GetComponent<Renderer>().material.color = darkTileColor;
+			}
+		}
+	}
 }

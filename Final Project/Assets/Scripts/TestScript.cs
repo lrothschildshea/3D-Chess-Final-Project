@@ -9,6 +9,7 @@ public class TestScript : MonoBehaviour {
 	private GameObject selectedTile = null;
 	private GameObject selectedPlatform = null;
 	private GameObject selectedPlatformLoc = null;
+	private List<GameObject> availablePegs = null;
 	private bool moving = false;
 
 	private Color lightTeamColor;
@@ -167,6 +168,8 @@ public class TestScript : MonoBehaviour {
 		capturedPiece = null;
 		moving = false;
         availableMoves = null;
+		availablePegs = null;
+		reColorPegs();
 		reColorTiles(tiles);
 	}
 	
@@ -236,11 +239,16 @@ public class TestScript : MonoBehaviour {
 					parent.transform.GetChild(0).gameObject.GetComponent<Renderer>().material.color = Color.green;
 					parent.transform.GetChild(1).gameObject.GetComponent<Renderer>().material.color = Color.green;
 					selectedPlatform = parent.transform.parent.gameObject;
+					availablePegs = getAvailablePegs();
+					foreach(GameObject p in availablePegs){
+						p.GetComponent<Renderer>().material.color = Color.red; 
+					}
 				}
 
 				//click on destination peg
-				if(selectedPlatform != null && isPeg(clicked)){
+				if(selectedPlatform != null && isPeg(clicked) && availablePegs.Contains(clicked)){
 					selectedPlatformLoc = clicked;
+					reColorPegs();
 					clicked.GetComponent<Renderer>().material.color = Color.green;
 					moving = true;
 				}
@@ -378,69 +386,67 @@ public class TestScript : MonoBehaviour {
 
     List<GameObject> getAvailableMoves(GameObject piece){
         List<GameObject> moves = tiles;
-        GameObject[] location = getLevelAndTileOfPiece(piece);
-        GameObject level = location[0];
-        GameObject tile = location[1];
-        int x = Int32.Parse(tile.name.Substring(5,1));
-        int y = Int32.Parse(tile.name.Substring(7));
-        //ADD Z TO HANDLE LEVELS BETTER
 
         if (piece.name.Contains("Pawn")){
-            moves = new List<GameObject>();
-            String candidate = "";
-            if (isLightPiece(piece)){
-                if (y + 1 < 4){
-                    candidate = "Tile " + x.ToString() + " " + (y+1).ToString();
-                    for(int i = 0; i < tiles.Count; i++){
-                        if(tiles[i].transform.parent.name == level.name && tiles[i].name == candidate){
-                            moves.Add(tiles[i]);
-                        }
-                    }
-                }
-                if(stationaryPawns.Contains(piece)){
-                    if (y + 2 < 4){
-                        candidate = "Tile " + x.ToString() + " " + (y + 2).ToString();
-                        for (int i = 0; i < tiles.Count; i++){
-                            if (tiles[i].transform.parent.name == level.name && tiles[i].name == candidate){
-                                moves.Add(tiles[i]);
-                            }
-                        }
-                    }
-                }
-            }
-            else{
-                if (y - 1 > -1){
-                    candidate = "Tile " + x.ToString() + " " + (y - 1).ToString();
-                    for (int i = 0; i < tiles.Count; i++){
-                        if (tiles[i].transform.parent.name == level.name && tiles[i].name == candidate){
-                            moves.Add(tiles[i]);
-                        }
-                    }
-                }
-                if (stationaryPawns.Contains(piece)){
-                    if (y - 2 > -1){
-                        candidate = "Tile " + x.ToString() + " " + (y - 2).ToString();
-                        for (int i = 0; i < tiles.Count; i++){
-                            if (tiles[i].transform.parent.name == level.name && tiles[i].name == candidate)
-                            {
-                                moves.Add(tiles[i]);
-                            }
-                        }
-                    }
-                }
-            }
+            moves = getPawnMoves(piece);
         }
 
+		//color available squares
         for(int i  = 0; i < moves.Count; i++){
 			if(isLightTile(moves[i])){
 				moves[i].GetComponent<Renderer>().material.color = Color.cyan;
 			} else {
 				moves[i].GetComponent<Renderer>().material.color = Color.blue;
 			}
-            
         }
         return moves;
     }
+
+	List<GameObject> getPawnMoves(GameObject pawn){
+		List<GameObject> moves = new List<GameObject>();
+
+		Vector3 pawnPos = pawn.transform.position;
+		List<Vector3> candidatePositions = new List<Vector3>();
+		if(isLightPiece(pawn)){
+			
+			candidatePositions.Add(new Vector3(pawnPos.x+1, pawnPos.y, pawnPos.z+1));
+			candidatePositions.Add(new Vector3(pawnPos.x-1, pawnPos.y, pawnPos.z+1));
+			candidatePositions.Add(new Vector3(pawnPos.x, pawnPos.y, pawnPos.z+1));
+			if(stationaryPawns.Contains(pawn)){
+				candidatePositions.Add(new Vector3(pawnPos.x, pawnPos.y, pawnPos.z+2));
+			}
+		}
+		else{
+			
+			candidatePositions.Add(new Vector3(pawnPos.x+1, pawnPos.y, pawnPos.z-1));
+			candidatePositions.Add(new Vector3(pawnPos.x-1, pawnPos.y, pawnPos.z-1));
+			candidatePositions.Add(new Vector3(pawnPos.x, pawnPos.y, pawnPos.z-1));
+			if(stationaryPawns.Contains(pawn)){
+				candidatePositions.Add(new Vector3(pawnPos.x, pawnPos.y, pawnPos.z-2));
+			}
+		}
+
+		foreach(GameObject t in tiles){
+			for(int i = 0; i < candidatePositions.Count; i++){
+				float distance = (t.transform.position.x - candidatePositions[i].x)*(t.transform.position.x - candidatePositions[i].x) + (t.transform.position.z - candidatePositions[i].z)*(t.transform.position.z - candidatePositions[i].z);
+				if(i < 2){
+					if(distance<0.1 && tileAvailable(t, pawn)==2){
+						moves.Add(t);
+					}
+				}
+				else{
+					if(distance < .1){
+						moves.Add(t);
+					}
+				}
+			}
+		}
+
+		//BLOCKING RULES
+
+		return moves;
+	}
+
 
     GameObject[] getLevelAndTileOfPiece(GameObject piece){
         GameObject level = null;
@@ -472,4 +478,28 @@ public class TestScript : MonoBehaviour {
 			}
 		}
 	}
+
+	void reColorPegs(){
+		for(int i = 0; i < pegs.Count; i++){
+			pegs[i].GetComponent<Renderer>().material.color = pegColor;
+		}
+	}
+
+	List<GameObject> getAvailablePegs(){
+		List<GameObject> results = new List<GameObject>();
+		results.AddRange(pegs);
+		for(int i  = 0; i < pegs.Count; i++){
+			for(int j = 0; j <stands.Count; j++){
+				float distance = (pegs[i].transform.position-stands[j].transform.position).magnitude;
+				Debug.Log(distance);
+				if(distance < 0.1){
+					Debug.Log("Hi");
+					results.Remove(pegs[i]);
+					break;
+				}
+			}
+		}
+		return results;
+	}
+
 }

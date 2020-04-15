@@ -11,6 +11,7 @@ public class TestScript : MonoBehaviour {
 	private GameObject selectedPlatformLoc = null;
 	private List<GameObject> availablePegs = null;
 	private bool moving = false;
+	private bool standPreppedForMove = false;
 
 	private Color lightTeamColor;
 	private Color darkTeamColor;
@@ -169,6 +170,7 @@ public class TestScript : MonoBehaviour {
 		moving = false;
         availableMoves = null;
 		availablePegs = null;
+		standPreppedForMove = false;
 		reColorPegs();
 		reColorTiles(tiles);
 	}
@@ -234,12 +236,12 @@ public class TestScript : MonoBehaviour {
 				}
 
 				//click on stand
-				if(isStand(clicked) && selectedPlatform == null && selectedPiece == null){
+				if(isStand(clicked) && selectedPlatform == null && selectedPiece == null && canMoveStand(clicked.transform.parent.gameObject.transform.parent.gameObject)){
 					GameObject parent = clicked.transform.parent.gameObject;
+					selectedPlatform = parent.transform.parent.gameObject;
 					parent.transform.GetChild(0).gameObject.GetComponent<Renderer>().material.color = Color.green;
 					parent.transform.GetChild(1).gameObject.GetComponent<Renderer>().material.color = Color.green;
-					selectedPlatform = parent.transform.parent.gameObject;
-					availablePegs = getAvailablePegs();
+					availablePegs = getAvailablePegs(parent);
 					foreach(GameObject p in availablePegs){
 						p.GetComponent<Renderer>().material.color = Color.red; 
 					}
@@ -312,6 +314,18 @@ public class TestScript : MonoBehaviour {
 			if(selectedPlatform != null){
 				Vector3 location = selectedPlatformLoc.transform.position;
 
+
+				if(!standPreppedForMove){
+					//assign piece onp platform to platform for movement
+					for(int i = 0; i < 4; i++){
+						GameObject piece = getPieceOnTile(selectedPlatform.transform.GetChild(i).gameObject);
+						if(piece != null){
+							piece.transform.parent = selectedPlatform.transform;
+						}
+					}
+					standPreppedForMove = true;
+				}
+
 				//adjust height
 				location.x -= .5f;
 				location.y += (2.2f - .051f);
@@ -324,6 +338,19 @@ public class TestScript : MonoBehaviour {
 					selectedPlatform.transform.GetChild(4).transform.GetChild(0).gameObject.GetComponent<Renderer>().material.color = standColor;
 					selectedPlatform.transform.GetChild(4).transform.GetChild(1).gameObject.GetComponent<Renderer>().material.color = standColor;
 					selectedPlatformLoc.GetComponent<Renderer>().material.color = pegColor;
+
+					//reassign piece on platform to original parent
+					for(int i = 0; i < 4; i++){
+						GameObject piece = getPieceOnTile(selectedPlatform.transform.GetChild(i).gameObject);
+						if(piece != null){
+							if(isLightPiece(piece)){
+								piece.transform.parent = GameObject.Find("White Pieces").transform;
+							} else {
+								piece.transform.parent = GameObject.Find("Black Pieces").transform;
+							}
+							
+						}
+					}
 					resetForNextAction();
 				}
 			}
@@ -485,21 +512,62 @@ public class TestScript : MonoBehaviour {
 		}
 	}
 
-	List<GameObject> getAvailablePegs(){
-		List<GameObject> results = new List<GameObject>();
-		results.AddRange(pegs);
+	//ADD CHECK FOR MOVING backwards rule !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	List<GameObject> getAvailablePegs(GameObject stand){
+		List<GameObject> preResults = new List<GameObject>();
+		GameObject currentPeg = null;
+		preResults.AddRange(pegs);
 		for(int i  = 0; i < pegs.Count; i++){
 			for(int j = 0; j <stands.Count; j++){
 				float distance = (pegs[i].transform.position-stands[j].transform.position).magnitude;
-				Debug.Log(distance);
 				if(distance < 0.1){
-					Debug.Log("Hi");
-					results.Remove(pegs[i]);
+					preResults.Remove(pegs[i]);
 					break;
 				}
 			}
+
+			float dist= (pegs[i].transform.position-stand.transform.position).magnitude;
+			if(dist < .1){
+				currentPeg = pegs[i];
+			}
 		}
+
+		List<GameObject> results = new List<GameObject>();
+		results.AddRange(preResults);
+
+		foreach(GameObject p in preResults){
+
+			bool sameX = Math.Abs(p.transform.position.x - currentPeg.transform.position.x) < .05;
+			bool sameZed = Math.Abs(p.transform.position.z - currentPeg.transform.position.z) < .05;
+			bool sameY = Math.Abs(p.transform.position.y - currentPeg.transform.position.y) < .05;
+
+			if(!sameX && !(sameZed && sameY)){
+				results.Remove(p);
+			}
+		}
+
+
+		//figure out backwards rule here
+
 		return results;
+	}
+
+
+	//probably make this return int so backwards is easier
+	bool canMoveStand(GameObject standLevel){
+		int count = 0;
+		for(int i = 0; i < 4; i++){
+			GameObject piece = getPieceOnTile(standLevel.transform.GetChild(i).gameObject);
+			if(piece != null){
+				if((lightsTurn && isLightPiece(piece)) || (!lightsTurn && isDarkPiece(piece))){
+					count += 1;
+				} else {
+					Debug.Log("enemy on stand");
+					return false;
+				}
+			}
+		}
+		return count < 2;
 	}
 
 }

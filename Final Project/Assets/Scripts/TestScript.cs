@@ -300,11 +300,7 @@ public class TestScript : MonoBehaviour {
 
 					//need to add a check above not hereish
 					if(capturedPiece != null){
-						if(isLightPiece(capturedPiece)){
-							capturedPiece.transform.position = dest;
-						} else {
-							capturedPiece.transform.position = dest;
-						}
+						capturedPiece.transform.position = dest;
 					}
 					resetForNextAction();
 				}

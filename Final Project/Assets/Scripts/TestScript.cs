@@ -449,25 +449,25 @@ public class TestScript : MonoBehaviour {
 			}
 		}
 
-		foreach(GameObject t in tiles){
-			for(int i = 0; i < candidatePositions.Count; i++){
+        foreach(GameObject t in tiles){
+            for(int i = 2; i < candidatePositions.Count; i++){
+                float distance = distance2D(t.transform.position, candidatePositions[i]);
+                if (distance < .1){
+                    moves.Add(t);
+                }
+            }
+        }
+
+        moves = blockingPawns(pawn, moves);
+
+        foreach (GameObject t in tiles){
+			for(int i = 0; i < 2; i++){
 				float distance = distance2D(t.transform.position, candidatePositions[i]);
-				if(i < 2){
-					if(distance<0.1 && tileAvailable(t, pawn)==2){
-						moves.Add(t);
-					}
-				}
-				else{
-					if(distance < .1){
-						moves.Add(t);
-					}
+				if(distance<0.1 && tileAvailable(t, pawn)==2){
+					moves.Add(t);
 				}
 			}
 		}
-
-        //BLOCKING RULES
-
-        moves = blockingPawns(pawn, moves);
 
 		return moves;
 	}
@@ -583,11 +583,10 @@ public class TestScript : MonoBehaviour {
             else{
                 for(int i = 0; i < occupiedTiles.Count; i++){
                     float diffZed = m.transform.position.z - occupiedTiles[i].transform.position.z;
-                    float diffX = m.transform.position.x - occupiedTiles[i].transform.position.x;
-                    if (isLightPiece(pawn) && diffZed > 0.5 && diffX < 0.5 && diffX > -0.5) {
+                    if (isLightPiece(pawn) && diffZed > 0.5) {
                         finalMoves.Remove(m);
                     }
-                    else if(isDarkPiece(pawn) && diffZed < -0.5 && diffX < 0.5 && diffX > -0.5){
+                    else if(isDarkPiece(pawn) && diffZed < -0.5){
                         finalMoves.Remove(m);
                     }
                 }

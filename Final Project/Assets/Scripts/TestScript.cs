@@ -62,10 +62,10 @@ public class TestScript : MonoBehaviour {
             }
             foreach(Transform piece in group){
                 GameObject gamePiece = piece.gameObject;
-                if(gamePiece.name.Contains("Light")){
+                if(gamePiece.name.Contains("Light") && !gamePiece.name.Contains("Captured")){
                     lightPieces.Add(gamePiece);
                 }
-                if (gamePiece.name.Contains("Dark")){
+                if (gamePiece.name.Contains("Dark") && !gamePiece.name.Contains("Captured")){
                     darkPieces.Add(gamePiece);
                 }
                 if (gamePiece.name.Contains("Tile")){
@@ -451,7 +451,7 @@ public class TestScript : MonoBehaviour {
 
 		foreach(GameObject t in tiles){
 			for(int i = 0; i < candidatePositions.Count; i++){
-				float distance = (t.transform.position.x - candidatePositions[i].x)*(t.transform.position.x - candidatePositions[i].x) + (t.transform.position.z - candidatePositions[i].z)*(t.transform.position.z - candidatePositions[i].z);
+				float distance = distance2D(t.transform.position, candidatePositions[i]);
 				if(i < 2){
 					if(distance<0.1 && tileAvailable(t, pawn)==2){
 						moves.Add(t);
@@ -465,31 +465,29 @@ public class TestScript : MonoBehaviour {
 			}
 		}
 
-		//BLOCKING RULES
+        //BLOCKING RULES
+
+        moves = blockingPawns(pawn, moves);
 
 		return moves;
 	}
 
+    float distance2D(Vector3 a, Vector3 b)
+    {
+        return (a.x - b.x) * (a.x - b.x) + (a.z - b.z) * (a.z - b.z);
+    }
 
-    GameObject[] getLevelAndTileOfPiece(GameObject piece){
-        GameObject level = null;
+    GameObject getTileUnderPiece(GameObject piece){
         GameObject tile = null;
-        for(int i = 0; i < levels.Count; i++){
-            //NEED TO FIX HOW SUBLEVELS WORK!!!
-            float vert_dist = Math.Abs(piece.transform.position.y - levels[i].transform.position.y);
-            if (vert_dist < 0.052){
-                level = levels[i];
-            }
-        }
 
         for(int i = 0; i<tiles.Count; i++){
             float dist = (piece.transform.position - tiles[i].transform.position).magnitude;
-            if (dist < 0.052){
+            if (dist < 0.051){
                 tile = tiles[i];
             }
         }
 
-        return new GameObject[2] {level,tile};
+        return tile;
     }
 
 	void reColorTiles(List<GameObject> tilesToBeColored){
@@ -565,5 +563,37 @@ public class TestScript : MonoBehaviour {
 		}
 		return count < 2;
 	}
+
+    List<GameObject> blockingPawns(GameObject pawn, List<GameObject> moves){
+        List<GameObject> occupiedTiles = new List<GameObject>();
+        foreach(GameObject m in moves)
+        {
+            if(tileAvailable(m, pawn) != 1){
+                occupiedTiles.Add(m);
+            }
+        }
+
+        List<GameObject> finalMoves = new List<GameObject>();
+        finalMoves.AddRange(moves);
+        foreach(GameObject m in moves)
+        {
+            if (occupiedTiles.Contains(m)){
+                finalMoves.Remove(m);
+            }
+            else{
+                for(int i = 0; i < occupiedTiles.Count; i++){
+                    float diffZed = m.transform.position.z - occupiedTiles[i].transform.position.z;
+                    float diffX = m.transform.position.x - occupiedTiles[i].transform.position.x;
+                    if (isLightPiece(pawn) && diffZed > 0.5 && diffX < 0.5 && diffX > -0.5) {
+                        finalMoves.Remove(m);
+                    }
+                    else if(isDarkPiece(pawn) && diffZed < -0.5 && diffX < 0.5 && diffX > -0.5){
+                        finalMoves.Remove(m);
+                    }
+                }
+            }
+        }
+        return finalMoves;
+    }
 
 }

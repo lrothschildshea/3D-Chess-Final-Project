@@ -236,7 +236,7 @@ public class TestScript : MonoBehaviour {
 				}
 
 				//click on stand
-				if(isStand(clicked) && selectedPlatform == null && selectedPiece == null && canMoveStand(clicked.transform.parent.gameObject.transform.parent.gameObject)){
+				if(isStand(clicked) && selectedPlatform == null && selectedPiece == null && (canMoveStand(clicked.transform.parent.gameObject.transform.parent.gameObject) < 2)){
 					GameObject parent = clicked.transform.parent.gameObject;
 					selectedPlatform = parent.transform.parent.gameObject;
 					parent.transform.GetChild(0).gameObject.GetComponent<Renderer>().material.color = Color.green;
@@ -529,6 +529,8 @@ public class TestScript : MonoBehaviour {
 		List<GameObject> results = new List<GameObject>();
 		results.AddRange(preResults);
 
+		int amtOnStand = canMoveStand(stand.transform.parent.gameObject);
+
 		foreach(GameObject p in preResults){
 
 			bool sameX = Math.Abs(p.transform.position.x - currentPeg.transform.position.x) < .05;
@@ -537,18 +539,26 @@ public class TestScript : MonoBehaviour {
 
 			if(!sameX && !(sameZed && sameY)){
 				results.Remove(p);
+			}else if(amtOnStand > 0){
+				//remove backward choices
+				if(lightsTurn && (currentPeg.transform.position.z - p.transform.position.z) > .1){
+					results.Remove(p);
+			} else if(!lightsTurn && (currentPeg.transform.position.z - p.transform.position.z) < -.1){
+					results.Remove(p);
+				}
 			}
 		}
-
-
-		//figure out backwards rule here
 
 		return results;
 	}
 
 
-	//probably make this return int so backwards is easier
-	bool canMoveStand(GameObject standLevel){
+	// return count of pieces on stand
+	//0 - empty - can go backwards
+	//1 - can move forwards
+	//2 or more - cannot move
+	//returns 10 when enemy on stand - cannot move
+	int canMoveStand(GameObject standLevel){
 		int count = 0;
 		for(int i = 0; i < 4; i++){
 			GameObject piece = getPieceOnTile(standLevel.transform.GetChild(i).gameObject);
@@ -557,11 +567,11 @@ public class TestScript : MonoBehaviour {
 					count += 1;
 				} else {
 					Debug.Log("enemy on stand");
-					return false;
+					return 10;
 				}
 			}
 		}
-		return count < 2;
+		return count;
 	}
 
     List<GameObject> blockingPawns(GameObject pawn, List<GameObject> moves){

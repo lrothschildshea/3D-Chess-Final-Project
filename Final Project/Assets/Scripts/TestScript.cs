@@ -412,7 +412,9 @@ public class TestScript : MonoBehaviour {
 
         if (piece.name.Contains("Pawn")){
             moves = getPawnMoves(piece);
-        }
+        } else if(piece.name.Contains("Knight")){
+			moves = getKnightMoves(piece);
+		}
 
 		//color available squares
         for(int i  = 0; i < moves.Count; i++){
@@ -472,6 +474,31 @@ public class TestScript : MonoBehaviour {
 		return moves;
 	}
 
+	List<GameObject> getKnightMoves(GameObject knight){
+		List<GameObject> moves = new List<GameObject>();
+		Vector3 knightPos = knight.transform.position;
+		List<Vector3> candidatePositions = new List<Vector3>();
+		
+		candidatePositions.Add(new Vector3(knightPos.x + 1f, knightPos.y, knightPos.z - 2f));
+		candidatePositions.Add(new Vector3(knightPos.x + 1f, knightPos.y, knightPos.z + 2f));
+		candidatePositions.Add(new Vector3(knightPos.x - 1f, knightPos.y, knightPos.z - 2f));
+		candidatePositions.Add(new Vector3(knightPos.x - 1f, knightPos.y, knightPos.z + 2f));
+		candidatePositions.Add(new Vector3(knightPos.x + 2f, knightPos.y, knightPos.z - 1f));
+		candidatePositions.Add(new Vector3(knightPos.x + 2f, knightPos.y, knightPos.z + 1f));
+		candidatePositions.Add(new Vector3(knightPos.x - 2f, knightPos.y, knightPos.z - 1f));
+		candidatePositions.Add(new Vector3(knightPos.x - 2f, knightPos.y, knightPos.z + 1f));
+
+		for(int i = 0; i < candidatePositions.Count; i++){
+			foreach(GameObject t in tiles){
+                if ((distance2D(t.transform.position, candidatePositions[i]) < .1) && (tileAvailable(t, knight) > 0)){
+                    moves.Add(t);
+                }
+            }
+        }
+
+		return moves;
+	}
+
     float distance2D(Vector3 a, Vector3 b)
     {
         return (a.x - b.x) * (a.x - b.x) + (a.z - b.z) * (a.z - b.z);
@@ -506,7 +533,6 @@ public class TestScript : MonoBehaviour {
 		}
 	}
 
-	//ADD CHECK FOR MOVING backwards rule !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	List<GameObject> getAvailablePegs(GameObject stand){
 		List<GameObject> preResults = new List<GameObject>();
 		GameObject currentPeg = null;

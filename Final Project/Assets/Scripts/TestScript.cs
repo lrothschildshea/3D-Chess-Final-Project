@@ -425,6 +425,8 @@ public class TestScript : MonoBehaviour {
 			moves = getRookMoves(piece);
 		} else if(piece.name.Contains("Bishop")){
 			moves = getBishopMoves(piece);
+		} else if(piece.name.Contains("Queen")){
+			moves = getQueenMoves(piece);
 		}
 
 		//color available squares
@@ -726,6 +728,13 @@ public class TestScript : MonoBehaviour {
 			}
 		}
 
+		return moves;
+	}
+
+	List<GameObject> getQueenMoves(GameObject queen){
+		List<GameObject> moves = new List<GameObject>();
+		moves.AddRange(getRookMoves(queen));
+		moves.AddRange(getBishopMoves(queen));
 		return moves;
 	}
 

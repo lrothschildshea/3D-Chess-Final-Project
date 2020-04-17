@@ -5,6 +5,7 @@ using System;
 
 public class TestScript : MonoBehaviour {
 
+	private bool enableMovesets = true;
 	private GameObject selectedPiece = null;
 	private GameObject selectedTile = null;
 	private GameObject selectedPlatform = null;
@@ -410,12 +411,18 @@ public class TestScript : MonoBehaviour {
     List<GameObject> getAvailableMoves(GameObject piece){
         List<GameObject> moves = tiles;
 
+		if(!enableMovesets){
+			return moves;
+		}
+
         if (piece.name.Contains("Pawn")){
             moves = getPawnMoves(piece);
         } else if(piece.name.Contains("Knight")){
 			moves = getKnightMoves(piece);
 		} else if(piece.name.Contains("King")){
 			moves = getKingMoves(piece);
+		} else if(piece.name.Contains("Rook")){
+			moves = getRookMoves(piece);
 		}
 
 		//color available squares
@@ -524,6 +531,102 @@ public class TestScript : MonoBehaviour {
         }
 
 		//we need to check that he isnt moving into check !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+		return moves;
+	}
+
+	List<GameObject> getRookMoves(GameObject rook){
+		List<GameObject> moves = new List<GameObject>();
+		Vector3 rookPos = rook.transform.position;
+
+
+		//forward white
+		for(int i = 1; i < 10; i++){
+			Vector3 candidate = new Vector3(rookPos.x, rookPos.y, rookPos.z + i);
+
+			bool blocked = false;
+			foreach(GameObject t in tiles){
+				int avail = tileAvailable(t, rook);
+				bool correctDistance = (distance2D(t.transform.position, candidate) < .1);
+
+				if(correctDistance && (avail > 0)){
+					moves.Add(t);
+				}
+
+				if(correctDistance && (avail == 0 || avail == 2)){
+					blocked = true;
+				}
+			}
+			if(blocked){
+				break;
+			}
+		}
+
+		//backward white
+		for(int i = 1; i < 10; i++){
+			Vector3 candidate = new Vector3(rookPos.x, rookPos.y, rookPos.z - i);
+
+			bool blocked = false;
+			foreach(GameObject t in tiles){
+				int avail = tileAvailable(t, rook);
+				bool correctDistance = (distance2D(t.transform.position, candidate) < .1);
+
+				if(correctDistance && (avail > 0)){
+					moves.Add(t);
+				}
+
+				if(correctDistance && (avail == 0 || avail == 2)){
+					blocked = true;
+				}
+			}
+			if(blocked){
+				break;
+			}
+		}
+
+		//right white
+		for(int i = 1; i < 6; i++){
+			Vector3 candidate = new Vector3(rookPos.x + i, rookPos.y, rookPos.z);
+
+			bool blocked = false;
+			foreach(GameObject t in tiles){
+				int avail = tileAvailable(t, rook);
+				bool correctDistance = (distance2D(t.transform.position, candidate) < .1);
+
+				if(correctDistance && (avail > 0)){
+					moves.Add(t);
+				}
+
+				if(correctDistance && (avail == 0 || avail == 2)){
+					blocked = true;
+				}
+			}
+			if(blocked){
+				break;
+			}
+		}
+
+		//left white
+		for(int i = 1; i < 6; i++){
+			Vector3 candidate = new Vector3(rookPos.x - i, rookPos.y, rookPos.z);
+
+			bool blocked = false;
+			foreach(GameObject t in tiles){
+				int avail = tileAvailable(t, rook);
+				bool correctDistance = (distance2D(t.transform.position, candidate) < .1);
+
+				if(correctDistance && (avail > 0)){
+					moves.Add(t);
+				}
+
+				if(correctDistance && (avail == 0 || avail == 2)){
+					blocked = true;
+				}
+			}
+			if(blocked){
+				break;
+			}
+		}
 
 		return moves;
 	}

@@ -423,6 +423,8 @@ public class TestScript : MonoBehaviour {
 			moves = getKingMoves(piece);
 		} else if(piece.name.Contains("Rook")){
 			moves = getRookMoves(piece);
+		} else if(piece.name.Contains("Bishop")){
+			moves = getBishopMoves(piece);
 		}
 
 		//color available squares
@@ -613,6 +615,102 @@ public class TestScript : MonoBehaviour {
 			bool blocked = false;
 			foreach(GameObject t in tiles){
 				int avail = tileAvailable(t, rook);
+				bool correctDistance = (distance2D(t.transform.position, candidate) < .1);
+
+				if(correctDistance && (avail > 0)){
+					moves.Add(t);
+				}
+
+				if(correctDistance && (avail == 0 || avail == 2)){
+					blocked = true;
+				}
+			}
+			if(blocked){
+				break;
+			}
+		}
+
+		return moves;
+	}
+
+	List<GameObject> getBishopMoves(GameObject bishop){
+		List<GameObject> moves = new List<GameObject>();
+		Vector3 bishopPos = bishop.transform.position;
+
+		
+		//forward right white
+		for(int i = 1; i < 6; i++){
+			Vector3 candidate = new Vector3(bishopPos.x + i, bishopPos.y, bishopPos.z + i);
+
+			bool blocked = false;
+			foreach(GameObject t in tiles){
+				int avail = tileAvailable(t, bishop);
+				bool correctDistance = (distance2D(t.transform.position, candidate) < .1);
+
+				if(correctDistance && (avail > 0)){
+					moves.Add(t);
+				}
+
+				if(correctDistance && (avail == 0 || avail == 2)){
+					blocked = true;
+				}
+			}
+			if(blocked){
+				break;
+			}
+		}
+
+		//forward left white
+		for(int i = 1; i < 6; i++){
+			Vector3 candidate = new Vector3(bishopPos.x - i, bishopPos.y, bishopPos.z + i);
+
+			bool blocked = false;
+			foreach(GameObject t in tiles){
+				int avail = tileAvailable(t, bishop);
+				bool correctDistance = (distance2D(t.transform.position, candidate) < .1);
+
+				if(correctDistance && (avail > 0)){
+					moves.Add(t);
+				}
+
+				if(correctDistance && (avail == 0 || avail == 2)){
+					blocked = true;
+				}
+			}
+			if(blocked){
+				break;
+			}
+		}
+
+		//backward right white
+		for(int i = 1; i < 6; i++){
+			Vector3 candidate = new Vector3(bishopPos.x + i, bishopPos.y, bishopPos.z - i);
+
+			bool blocked = false;
+			foreach(GameObject t in tiles){
+				int avail = tileAvailable(t, bishop);
+				bool correctDistance = (distance2D(t.transform.position, candidate) < .1);
+
+				if(correctDistance && (avail > 0)){
+					moves.Add(t);
+				}
+
+				if(correctDistance && (avail == 0 || avail == 2)){
+					blocked = true;
+				}
+			}
+			if(blocked){
+				break;
+			}
+		}
+
+		//backward left white
+		for(int i = 1; i < 6; i++){
+			Vector3 candidate = new Vector3(bishopPos.x - i, bishopPos.y, bishopPos.z - i);
+
+			bool blocked = false;
+			foreach(GameObject t in tiles){
+				int avail = tileAvailable(t, bishop);
 				bool correctDistance = (distance2D(t.transform.position, candidate) < .1);
 
 				if(correctDistance && (avail > 0)){

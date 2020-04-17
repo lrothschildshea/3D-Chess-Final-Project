@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using System;
 
 public class TestScript : MonoBehaviour {
@@ -42,6 +43,9 @@ public class TestScript : MonoBehaviour {
 
     private List<GameObject> stationaryPawns;
 
+	private float timeSinceTextChange = 0f;
+	GameObject bottomPrompt;
+
 
 	// Use this for initialization
 	void Start () {
@@ -54,6 +58,7 @@ public class TestScript : MonoBehaviour {
         availableMoves = new List<GameObject>();
         stationaryPawns = new List<GameObject>();
         levels = new List<GameObject>();
+		bottomPrompt = GameObject.Find("Bottom Prompt");
         //get lists of objects used throughout the game
         gameBoard = GameObject.Find("GameBoard");
         foreach(Transform group in gameBoard.transform){
@@ -178,6 +183,7 @@ public class TestScript : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+		updateBottomPromt();
 
 		//detect the object that has been clicked and change its color
 		if(Input.GetMouseButtonDown(0) && !moving) {
@@ -237,15 +243,20 @@ public class TestScript : MonoBehaviour {
 				}
 
 				//click on stand
-				if(isStand(clicked) && selectedPlatform == null && selectedPiece == null && (canMoveStand(clicked.transform.parent.gameObject.transform.parent.gameObject) < 2)){
-					GameObject parent = clicked.transform.parent.gameObject;
-					selectedPlatform = parent.transform.parent.gameObject;
-					parent.transform.GetChild(0).gameObject.GetComponent<Renderer>().material.color = Color.green;
-					parent.transform.GetChild(1).gameObject.GetComponent<Renderer>().material.color = Color.green;
-					availablePegs = getAvailablePegs(parent);
-					foreach(GameObject p in availablePegs){
-						p.GetComponent<Renderer>().material.color = Color.red; 
+				if(isStand(clicked) && selectedPlatform == null && selectedPiece == null){
+					if(canMoveStand(clicked.transform.parent.gameObject.transform.parent.gameObject) < 2){
+						GameObject parent = clicked.transform.parent.gameObject;
+						selectedPlatform = parent.transform.parent.gameObject;
+						parent.transform.GetChild(0).gameObject.GetComponent<Renderer>().material.color = Color.green;
+						parent.transform.GetChild(1).gameObject.GetComponent<Renderer>().material.color = Color.green;
+						availablePegs = getAvailablePegs(parent);
+						foreach(GameObject p in availablePegs){
+							p.GetComponent<Renderer>().material.color = Color.red; 
+						}
+					} else {
+						setBottomPrompt("That stand cannot be moved right now.");
 					}
+
 				}
 
 				//click on destination peg
@@ -869,5 +880,17 @@ public class TestScript : MonoBehaviour {
         }
         return finalMoves;
     }
+
+	void updateBottomPromt(){
+		timeSinceTextChange += Time.deltaTime;
+		if(timeSinceTextChange > 5.0f){
+			setBottomPrompt("");
+		}
+	}
+
+	void setBottomPrompt(String str){
+		bottomPrompt.GetComponent<Text>().text = str;
+		timeSinceTextChange = 0f;
+	}
 
 }

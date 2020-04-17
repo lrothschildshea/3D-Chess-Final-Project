@@ -414,6 +414,8 @@ public class TestScript : MonoBehaviour {
             moves = getPawnMoves(piece);
         } else if(piece.name.Contains("Knight")){
 			moves = getKnightMoves(piece);
+		} else if(piece.name.Contains("King")){
+			moves = getKingMoves(piece);
 		}
 
 		//color available squares
@@ -495,6 +497,33 @@ public class TestScript : MonoBehaviour {
                 }
             }
         }
+
+		return moves;
+	}
+
+	List<GameObject> getKingMoves(GameObject king){
+		List<GameObject> moves = new List<GameObject>();
+		Vector3 kingPos = king.transform.position;
+		List<Vector3> candidatePositions = new List<Vector3>();
+
+		candidatePositions.Add(new Vector3(kingPos.x, kingPos.y, kingPos.z + 1));
+		candidatePositions.Add(new Vector3(kingPos.x, kingPos.y, kingPos.z - 1));
+		candidatePositions.Add(new Vector3(kingPos.x + 1, kingPos.y, kingPos.z));
+		candidatePositions.Add(new Vector3(kingPos.x - 1, kingPos.y, kingPos.z));
+		candidatePositions.Add(new Vector3(kingPos.x + 1, kingPos.y, kingPos.z + 1));
+		candidatePositions.Add(new Vector3(kingPos.x + 1, kingPos.y, kingPos.z - 1));
+		candidatePositions.Add(new Vector3(kingPos.x - 1, kingPos.y, kingPos.z + 1));
+		candidatePositions.Add(new Vector3(kingPos.x - 1, kingPos.y, kingPos.z - 1));
+
+		for(int i = 0; i < candidatePositions.Count; i++){
+			foreach(GameObject t in tiles){
+                if ((distance2D(t.transform.position, candidatePositions[i]) < .1) && (tileAvailable(t, king) > 0)){
+                    moves.Add(t);
+                }
+            }
+        }
+
+		//we need to check that he isnt moving into check !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 		return moves;
 	}

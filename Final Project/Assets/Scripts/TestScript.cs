@@ -903,9 +903,15 @@ public class TestScript : MonoBehaviour {
 
     void movePieceToTile(GameObject piece, GameObject tile)
     {
+
+		//teleport existing piece on tile to 1000, 1000, 1000 so its not on the board
+
         Vector3 location = tile.transform.position;
         location.y += .05f;
         piece.transform.position = location;
+
+		
+
     }
 
     bool check(GameObject king, List<GameObject> opposingPieces)
@@ -939,11 +945,20 @@ public class TestScript : MonoBehaviour {
 
         foreach(GameObject pos in moves)
         {
+			GameObject enemyOnPos = getPieceOnTile(pos);
+			//assumes no friendly in moves
+			if(enemyOnPos != null){
+				enemyOnPos.transform.position = new Vector3(1000f, 1000f, 1000f);
+			}
             movePieceToTile(piece, pos);
             if(check(myKing, opponentsPieces))
             {
                 finalMoves.Remove(pos);
             }
+
+			if(enemyOnPos != null){
+				movePieceToTile(enemyOnPos, pos);
+			}
         }
         movePieceToTile(piece, ogTile);
 

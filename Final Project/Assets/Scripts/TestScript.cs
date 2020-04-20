@@ -46,9 +46,12 @@ public class TestScript : MonoBehaviour {
 	private float timeSinceTextChange = 0f;
 	GameObject bottomPrompt;
 
+	bool gameOver;
+
 
 	// Use this for initialization
 	void Start () {
+		gameOver = false;
 		lightsTurn = true;
         lightPieces = new List<GameObject>();
         darkPieces = new List<GameObject>();
@@ -163,8 +166,45 @@ public class TestScript : MonoBehaviour {
     }
 
 	void resetForNextAction(){
+		setBottomPrompt("");
 		resetForNextActionWithoutTogglingTurn();
 		lightsTurn = !lightsTurn;
+
+		List<GameObject> friendlyPieces;
+		List<GameObject> enemyPieces;
+		GameObject myKing;
+		if(lightsTurn){
+			friendlyPieces = lightPieces;
+			enemyPieces = darkPieces;
+			myKing = GameObject.Find("KingLight");
+			
+		} else {
+			friendlyPieces = darkPieces;
+			enemyPieces = lightPieces;
+			myKing = GameObject.Find("KingDark");
+		}
+
+		if(check(myKing, enemyPieces)){
+			
+
+			bool checkmate = true;
+			foreach(GameObject f in friendlyPieces){
+				List<GameObject> safeMoves = getSafeMoves(f, getAvailableMoves(f));
+				checkmate = checkmate && (safeMoves.Count == 0);
+				if(!checkmate){
+					break;
+				}
+			}
+			if(checkmate){
+				setBottomPrompt("You are in checkmate! Game over.");
+				gameOver = true;
+			} else {
+				setBottomPrompt("You are in check!");
+			}
+
+		}
+
+
 	}
 
 	void resetForNextActionWithoutTogglingTurn(){
@@ -316,6 +356,11 @@ public class TestScript : MonoBehaviour {
 					//need to add a check above not hereish
 					if(capturedPiece != null){
 						capturedPiece.transform.position = dest;
+						if(isLightPiece(capturedPiece)){
+							lightPieces.Remove(capturedPiece);
+						} else {
+							darkPieces.Remove(capturedPiece);
+						}
 					}
 					resetForNextAction();
 				}
@@ -539,8 +584,6 @@ public class TestScript : MonoBehaviour {
                 }
             }
         }
-
-		//we need to check that he isnt moving into check !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 		return moves;
 	}
@@ -928,7 +971,7 @@ public class TestScript : MonoBehaviour {
 
     List<GameObject> getSafeMoves(GameObject piece, List<GameObject> moves)
     {
-        GameObject myKing = GameObject.Find("KingLight");;
+        GameObject myKing = GameObject.Find("KingLight");
         List<GameObject> opponentsPieces = new List<GameObject>();
         if (lightsTurn){
             opponentsPieces.AddRange(darkPieces);

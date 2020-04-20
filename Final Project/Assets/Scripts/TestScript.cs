@@ -49,6 +49,9 @@ public class TestScript : MonoBehaviour {
 	bool gameOver;
 	public bool gameStarted;
 
+	//set in unity
+	public AudioClip checkRedAlert;
+
 
 	// Use this for initialization
 	void Start () {
@@ -203,7 +206,7 @@ public class TestScript : MonoBehaviour {
 			} else {
 				setBottomPrompt("You are in check!");
 			}
-
+			GameObject.Find("GameBoard").GetComponent<AudioSource>().PlayOneShot(checkRedAlert, .2F);
 		}
 
 

@@ -47,10 +47,12 @@ public class TestScript : MonoBehaviour {
 	GameObject bottomPrompt;
 
 	bool gameOver;
+	public bool gameStarted;
 
 
 	// Use this for initialization
 	void Start () {
+		gameStarted = false;
 		gameOver = false;
 		lightsTurn = true;
         lightPieces = new List<GameObject>();
@@ -223,6 +225,12 @@ public class TestScript : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+		if(!gameStarted){
+			return;
+		}
+		if(gameOver){
+			GameObject.Find("Menus").GetComponent<MenuControls>().enableGameOverScreen();
+		}
 		updateBottomPromt();
 
 		//detect the object that has been clicked and change its color
@@ -940,21 +948,19 @@ public class TestScript : MonoBehaviour {
 	}
 
 	void setBottomPrompt(String str){
+		if(bottomPrompt == null){
+			//can occur due to menus getting disabled and enabled
+			bottomPrompt = GameObject.Find("Bottom Prompt");
+		}
 		bottomPrompt.GetComponent<Text>().text = str;
 		timeSinceTextChange = 0f;
 	}
 
     void movePieceToTile(GameObject piece, GameObject tile)
     {
-
-		//teleport existing piece on tile to 1000, 1000, 1000 so its not on the board
-
         Vector3 location = tile.transform.position;
         location.y += .05f;
         piece.transform.position = location;
-
-		
-
     }
 
     bool check(GameObject king, List<GameObject> opposingPieces)

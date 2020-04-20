@@ -22,6 +22,9 @@ public class CameraMovement : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+		if(!GameObject.Find("GameBoard").GetComponent<TestScript>().gameStarted){
+			return;
+		}
 
 		//camera rotation
 		if(Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)){

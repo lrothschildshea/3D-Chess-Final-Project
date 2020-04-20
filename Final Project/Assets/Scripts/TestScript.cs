@@ -216,6 +216,7 @@ public class TestScript : MonoBehaviour {
 					selectedPiece = clicked;
 					clicked.GetComponent<Renderer>().material.color = Color.yellow;
                     availableMoves = getAvailableMoves(selectedPiece);
+                    colorAvailableTiles(availableMoves);
 				}
 
 				//click on destination tile
@@ -440,14 +441,35 @@ public class TestScript : MonoBehaviour {
 			moves = getQueenMoves(piece);
 		}
 
-		//color available squares
-        for(int i  = 0; i < moves.Count; i++){
-			if(isLightTile(moves[i])){
-				moves[i].GetComponent<Renderer>().material.color = Color.cyan;
-			} else {
-				moves[i].GetComponent<Renderer>().material.color = Color.blue;
-			}
+        /*GameObject myKing;
+        List<GameObject> opponentsPieces = new List<GameObject>();
+        if (lightsTurn){
+            myKing = GameObject.Find("LightKing");
+            opponentsPieces.AddRange(darkPieces);
         }
+        else
+        {
+            myKing = GameObject.Find("DarkKing");
+            opponentsPieces.AddRange(lightPieces);
+        }
+
+        GameObject ogTile = getTileUnderPiece(piece);
+        List<GameObject> finalMoves = new List<GameObject>();
+        finalMoves.AddRange(moves);
+
+        foreach(GameObject pos in moves)
+        {
+            Debug.Log(pos);
+            movePieceToTile(piece, pos);
+            if(check(myKing, opponentsPieces))
+            {
+                finalMoves.Remove(pos);
+            }
+        }
+        movePieceToTile(piece, ogTile);
+
+        moves = finalMoves;*/
+
         return moves;
     }
 
@@ -767,6 +789,19 @@ public class TestScript : MonoBehaviour {
         return tile;
     }
 
+    void colorAvailableTiles(List<GameObject> moves)
+    {
+        for (int i = 0; i < moves.Count; i++){
+            if (isLightTile(moves[i])){
+                moves[i].GetComponent<Renderer>().material.color = Color.cyan;
+            }
+            else{
+                moves[i].GetComponent<Renderer>().material.color = Color.blue;
+            }
+        }
+    }
+        
+
 	void reColorTiles(List<GameObject> tilesToBeColored){
 		for(int i = 0; i < tilesToBeColored.Count; i++){
 			if(isLightTile(tilesToBeColored[i])){
@@ -892,5 +927,25 @@ public class TestScript : MonoBehaviour {
 		bottomPrompt.GetComponent<Text>().text = str;
 		timeSinceTextChange = 0f;
 	}
+
+    void movePieceToTile(GameObject piece, GameObject tile)
+    {
+        Vector3 location = tile.transform.position;
+        location.y += .05f;
+        piece.transform.position = location;
+    }
+
+    bool check(GameObject king, List<GameObject> opposingPieces)
+    {
+        List<GameObject> opponentMoveSet = new List<GameObject>();
+        foreach(GameObject opponent in opposingPieces){
+            opponentMoveSet.AddRange(getAvailableMoves(opponent));
+            Debug.Log("hi");
+        }
+        if (opponentMoveSet.Contains(getTileUnderPiece(king))){
+            return true;
+        }
+        return false;
+    }
 
 }

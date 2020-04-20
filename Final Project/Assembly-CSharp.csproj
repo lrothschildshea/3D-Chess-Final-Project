@@ -54,6 +54,8 @@
      <Compile Include="Assets\Free Low Poly Chess Set\Example\Scripts\CameraRotate.cs" />
      <Compile Include="Assets\Scripts\CameraMovement.cs" />
      <Compile Include="Assets\Scripts\TestScript.cs" />
+     <Compile Include="Assets\SpaceSkies Free\Demo\Scripts\LookCamera.cs" />
+     <Compile Include="Assets\SpaceSkies Free\Demo\Scripts\SkyboxChanger.cs" />
      <None Include="Assets\Free Low Poly Chess Set\README.txt" />
  <Reference Include="UnityEngine.CoreModule">
  <HintPath>C:/Program Files/Unity/Hub/Editor/2017.4.36f1/Editor/Data/Managed/UnityEngine/UnityEngine.CoreModule.dll</HintPath>

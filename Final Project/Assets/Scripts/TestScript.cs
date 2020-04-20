@@ -216,6 +216,8 @@ public class TestScript : MonoBehaviour {
 					selectedPiece = clicked;
 					clicked.GetComponent<Renderer>().material.color = Color.yellow;
                     availableMoves = getAvailableMoves(selectedPiece);
+                    List<GameObject> safeMoves = getSafeMoves(selectedPiece, availableMoves);
+                    availableMoves = safeMoves;
                     colorAvailableTiles(availableMoves);
 				}
 
@@ -440,35 +442,6 @@ public class TestScript : MonoBehaviour {
 		} else if(piece.name.Contains("Queen")){
 			moves = getQueenMoves(piece);
 		}
-
-        /*GameObject myKing;
-        List<GameObject> opponentsPieces = new List<GameObject>();
-        if (lightsTurn){
-            myKing = GameObject.Find("LightKing");
-            opponentsPieces.AddRange(darkPieces);
-        }
-        else
-        {
-            myKing = GameObject.Find("DarkKing");
-            opponentsPieces.AddRange(lightPieces);
-        }
-
-        GameObject ogTile = getTileUnderPiece(piece);
-        List<GameObject> finalMoves = new List<GameObject>();
-        finalMoves.AddRange(moves);
-
-        foreach(GameObject pos in moves)
-        {
-            Debug.Log(pos);
-            movePieceToTile(piece, pos);
-            if(check(myKing, opponentsPieces))
-            {
-                finalMoves.Remove(pos);
-            }
-        }
-        movePieceToTile(piece, ogTile);
-
-        moves = finalMoves;*/
 
         return moves;
     }
@@ -940,12 +913,41 @@ public class TestScript : MonoBehaviour {
         List<GameObject> opponentMoveSet = new List<GameObject>();
         foreach(GameObject opponent in opposingPieces){
             opponentMoveSet.AddRange(getAvailableMoves(opponent));
-            Debug.Log("hi");
         }
         if (opponentMoveSet.Contains(getTileUnderPiece(king))){
             return true;
         }
         return false;
+    }
+
+    List<GameObject> getSafeMoves(GameObject piece, List<GameObject> moves)
+    {
+        GameObject myKing = GameObject.Find("KingLight");;
+        List<GameObject> opponentsPieces = new List<GameObject>();
+        if (lightsTurn){
+            opponentsPieces.AddRange(darkPieces);
+        }
+        else
+        {
+            myKing = GameObject.Find("KingDark");
+            opponentsPieces.AddRange(lightPieces);
+        }
+
+        GameObject ogTile = getTileUnderPiece(piece);
+        List<GameObject> finalMoves = new List<GameObject>();
+        finalMoves.AddRange(moves);
+
+        foreach(GameObject pos in moves)
+        {
+            movePieceToTile(piece, pos);
+            if(check(myKing, opponentsPieces))
+            {
+                finalMoves.Remove(pos);
+            }
+        }
+        movePieceToTile(piece, ogTile);
+
+        return finalMoves;
     }
 
 }

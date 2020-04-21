@@ -8,12 +8,14 @@ public class MenuControls : MonoBehaviour {
 	private GameObject welcomeScreen;
 	private GameObject instructionsScreen;
 	private GameObject hud;
+	private GameObject upgradeScreen;
 	private GameObject gameOverScreen;
 
 	void Start () {
 		welcomeScreen = GameObject.Find("WelcomeScreen");
 		instructionsScreen = GameObject.Find("InstructionsScreen");
 		hud = GameObject.Find("HUD");
+		upgradeScreen = GameObject.Find("UpgradeScreen");
 		gameOverScreen = GameObject.Find("GameOverScreen");
 
 		disableAllExcept(welcomeScreen);
@@ -34,6 +36,9 @@ public class MenuControls : MonoBehaviour {
 		if(exception != hud){
 			disableHUD();
 		}
+		if(exception != upgradeScreen){
+			disableUpgradeScreen();
+		}
 		if(exception != gameOverScreen){
 			disableGameOverScreen();
 		}
@@ -41,7 +46,6 @@ public class MenuControls : MonoBehaviour {
 
 	public void startGame(){
 		enableHUD();
-		disableAllExcept(hud);
 		GameObject.Find("GameBoard").GetComponent<TestScript>().gameStarted = true;
 	}
 
@@ -67,6 +71,15 @@ public class MenuControls : MonoBehaviour {
 	}
 	public void disableHUD(){
 		hud.SetActive(false);
+	}
+
+	public void enableUpgradeScreen(){
+		upgradeScreen.SetActive(true);
+		disableAllExcept(upgradeScreen);
+	}
+
+	public void disableUpgradeScreen(){
+		upgradeScreen.SetActive(false);
 	}
 
 	public void enableGameOverScreen(){

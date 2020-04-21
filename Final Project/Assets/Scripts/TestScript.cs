@@ -49,8 +49,20 @@ public class TestScript : MonoBehaviour {
 	bool gameOver;
 	public bool gameStarted;
 
+	private bool upgrading;
+	private List<GameObject> lightUpgradeTiles;
+	private List<GameObject> darkUpgradeTiles;
+
 	//set in unity
 	public AudioClip checkRedAlert;
+	public GameObject lightKnightPrefab;
+	public GameObject lightRookPrefab;
+	public GameObject lightBishopPrefab;
+	public GameObject lightQueenPrefab;
+	public GameObject darkKnightPrefab;
+	public GameObject darkRookPrefab;
+	public GameObject darkBishopPrefab;
+	public GameObject darkQueenPrefab;
 
 
 	// Use this for initialization
@@ -58,6 +70,7 @@ public class TestScript : MonoBehaviour {
 		gameStarted = false;
 		gameOver = false;
 		lightsTurn = true;
+		upgrading = false;
         lightPieces = new List<GameObject>();
         darkPieces = new List<GameObject>();
         tiles = new List<GameObject>();
@@ -325,8 +338,6 @@ public class TestScript : MonoBehaviour {
      	}
 
 		if(moving){
-
-
 			//moving piece
 			if(selectedPiece != null){
 				Vector3 location = selectedTile.transform.position;
@@ -373,6 +384,7 @@ public class TestScript : MonoBehaviour {
 							darkPieces.Remove(capturedPiece);
 						}
 					}
+					upgradePieces();
 					resetForNextAction();
 				}
 			}
@@ -418,6 +430,7 @@ public class TestScript : MonoBehaviour {
 							
 						}
 					}
+					upgradePieces();
 					resetForNextAction();
 				}
 			}
@@ -1016,5 +1029,129 @@ public class TestScript : MonoBehaviour {
 
         return finalMoves;
     }
+
+	void upgradePieces(){
+		List<GameObject> tempLightPieces = new List<GameObject>();
+		tempLightPieces.AddRange(lightPieces);
+		foreach(GameObject piece in tempLightPieces){
+			if(piece.name.Contains("Pawn")){
+				GameObject tile = getTileUnderPiece(piece);
+
+				bool onLevel3 = tile.transform.parent.gameObject == GameObject.Find("Level 3");
+				bool onBackRowOfMainLevel = tile.name.EndsWith("3");
+				bool onLeftTile = tile.name.Contains("Tile 0");
+				bool onMiddleTile = tile.name.Contains("Tile 1") || tile.name.Contains("Tile 2");
+				bool onRightTile = tile.name.Contains("Tile 3");
+				
+				bool onSubLevel = tile.transform.parent.gameObject.name.Contains(".5.1") || tile.transform.parent.gameObject.name.Contains(".5.2");
+				bool onBackRowOfSubLevel = tile.name.EndsWith("1");
+				bool onBackLeftPeg = false;
+				bool onBackRightPeg = false;
+
+				GameObject backLeftPeg = GameObject.Find("Level 3").transform.GetChild(18).gameObject;
+				GameObject backRightPeg = GameObject.Find("Level 3").transform.GetChild(19).gameObject;
+				GameObject backLeftStand = null;
+				GameObject backRightStand = null;
+
+				foreach(GameObject stand in stands){
+					float dist1 = (backLeftPeg.transform.position - stand.transform.position).magnitude;
+					float dist2 = (backRightPeg.transform.position - stand.transform.position).magnitude;
+					if(dist1 < .1 ){
+						backLeftStand = stand;
+					} else if( dist2 < .1){
+						backRightStand = stand;
+					}
+				}
+
+				if(onSubLevel){
+					float dist1 = (backLeftPeg.transform.position - tile.transform.parent.gameObject.transform.GetChild(4).gameObject.transform.position).magnitude;
+					float dist2 = (backRightPeg.transform.position - tile.transform.parent.gameObject.transform.GetChild(4).gameObject.transform.position).magnitude;
+					if(dist1 < .1 ){
+						onBackLeftPeg = true;
+					} else if( dist2 < .1){
+						onBackRightPeg = true;
+					}
+				}
+
+				bool onBackMiddleOfLvl3 = (onLevel3 && onBackRowOfMainLevel && onMiddleTile);
+				bool onBackLeftOfLvl3NoStand = (onLevel3 && onBackRowOfMainLevel && onLeftTile && (backLeftStand == null));
+				bool onBackRightOfLvl3NoStand = (onLevel3 && onBackRowOfMainLevel && onRightTile && (backRightStand == null));
+				bool onBackOfSubLvlAndSubLvlOnBack = (onSubLevel && onBackRowOfSubLevel && (onBackLeftPeg || onBackRightPeg));
+
+				bool shouldUpgrade = onBackMiddleOfLvl3 || onBackLeftOfLvl3NoStand || onBackRightOfLvl3NoStand || onBackOfSubLvlAndSubLvlOnBack;
+
+				if(shouldUpgrade){
+					//upgrade piece based off of menu selection
+					GameObject newPiece = Instantiate(lightKnightPrefab, piece.transform.position, Quaternion.identity);
+					lightPieces.Add(newPiece);
+					lightPieces.Remove(piece);
+					newPiece.transform.parent = GameObject.Find("White Pieces").transform;
+					Destroy(piece);
+				}
+			}
+		}
+
+		//upgrade black pieces
+		List<GameObject> tempDarkPieces = new List<GameObject>();
+		tempDarkPieces.AddRange(darkPieces);
+		foreach(GameObject piece in tempDarkPieces){
+			if(piece.name.Contains("Pawn")){
+				GameObject tile = getTileUnderPiece(piece);
+
+				bool onLevel1 = tile.transform.parent.gameObject == GameObject.Find("Level 1");
+				bool onFrontRowOfMainLevel = tile.name.EndsWith("0");
+				bool onLeftTile = tile.name.Contains("Tile 0");
+				bool onMiddleTile = tile.name.Contains("Tile 1") || tile.name.Contains("Tile 2");
+				bool onRightTile = tile.name.Contains("Tile 3");
+				
+				bool onSubLevel = tile.transform.parent.gameObject.name.Contains(".5.1") || tile.transform.parent.gameObject.name.Contains(".5.2");
+				bool onFrontRowOfSubLevel = tile.name.EndsWith("0");
+				bool onFrontLeftPeg = false;
+				bool onFrontRightPeg = false;
+
+				GameObject frontLeftPeg = GameObject.Find("Level 1").transform.GetChild(16).gameObject;
+				GameObject frontRightPeg = GameObject.Find("Level 1").transform.GetChild(17).gameObject;
+				GameObject frontLeftStand = null;
+				GameObject frontRightStand = null;
+
+				foreach(GameObject stand in stands){
+					float dist1 = (frontLeftPeg.transform.position - stand.transform.position).magnitude;
+					float dist2 = (frontRightPeg.transform.position - stand.transform.position).magnitude;
+					if(dist1 < .1 ){
+						frontLeftStand = stand;
+					} else if( dist2 < .1){
+						frontRightStand = stand;
+					}
+				}
+
+				if(onSubLevel){
+					float dist1 = (frontLeftPeg.transform.position - tile.transform.parent.gameObject.transform.GetChild(4).gameObject.transform.position).magnitude;
+					float dist2 = (frontRightPeg.transform.position - tile.transform.parent.gameObject.transform.GetChild(4).gameObject.transform.position).magnitude;
+					if(dist1 < .1 ){
+						onFrontLeftPeg = true;
+					} else if( dist2 < .1){
+						onFrontRightPeg = true;
+					}
+				}
+
+				bool onFrontMiddleOfLvl1 = (onLevel1 && onFrontRowOfMainLevel && onMiddleTile);
+				bool onFrontLeftOfLvl1NoStand = (onLevel1 && onFrontRowOfMainLevel && onLeftTile && (frontLeftStand == null));
+				bool onFrontRightOfLvl1NoStand = (onLevel1 && onFrontRowOfMainLevel && onRightTile && (frontRightStand == null));
+				bool onFrontOfSubLvlAndSubLvlOnFront = (onSubLevel && onFrontRowOfSubLevel && (onFrontLeftPeg || onFrontRightPeg));
+
+				bool shouldUpgrade = onFrontMiddleOfLvl1 || onFrontLeftOfLvl1NoStand || onFrontRightOfLvl1NoStand || onFrontOfSubLvlAndSubLvlOnFront;
+
+				if(shouldUpgrade){
+					//upgrade piece based off of menu selection
+					GameObject newPiece = Instantiate(darkKnightPrefab, piece.transform.position, Quaternion.identity);
+					darkPieces.Add(newPiece);
+					darkPieces.Remove(piece);
+					newPiece.transform.parent = GameObject.Find("Black Pieces").transform;
+					Destroy(piece);
+					//piece will be facing backwards. need to rotate it
+				}
+			}
+		}
+	}
 
 }

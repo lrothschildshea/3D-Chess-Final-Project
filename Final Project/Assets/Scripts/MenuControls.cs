@@ -7,8 +7,8 @@ public class MenuControls : MonoBehaviour {
 	
 	private GameObject welcomeScreen;
 	private GameObject instructionsScreen;
-	private GameObject hud;
-	private GameObject upgradeScreen;
+	public GameObject hud;
+	public GameObject upgradeScreen;
 	private GameObject gameOverScreen;
 
 	void Start () {

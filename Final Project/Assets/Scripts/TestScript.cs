@@ -50,6 +50,7 @@ public class TestScript : MonoBehaviour {
 	public bool gameStarted;
 
 	private bool upgrading;
+	public String upgradeSelection;
 	private List<GameObject> lightUpgradeTiles;
 	private List<GameObject> darkUpgradeTiles;
 
@@ -64,12 +65,19 @@ public class TestScript : MonoBehaviour {
 	public GameObject darkBishopPrefab;
 	public GameObject darkQueenPrefab;
 
+	private List<GameObject> piecesToUpgrade;
+	private bool foundAllUpgradePieces;
+	private GameObject lightOptions;
+	private GameObject darkOptions;
+
     private int movesWithOutPawnOrCapture;
 
     private float lightTimer;
     private float darkTimer;
     private bool canCount;
     private bool doOnce;
+
+	private MenuControls menuScript;
 
 	// Use this for initialization
 	void Start () {
@@ -90,6 +98,12 @@ public class TestScript : MonoBehaviour {
         darkTimer = 1800f;
         canCount = true;
         doOnce = false;
+		menuScript = GameObject.Find("Menus").GetComponent<MenuControls>();
+		piecesToUpgrade = new List<GameObject>();
+		foundAllUpgradePieces = false;
+		upgradeSelection = null;
+		lightOptions = GameObject.Find("lightOptions");
+		darkOptions = GameObject.Find("darkOptions");
         //get lists of objects used throughout the game
         gameBoard = GameObject.Find("GameBoard");
         foreach(Transform group in gameBoard.transform){
@@ -256,6 +270,8 @@ public class TestScript : MonoBehaviour {
         availableMoves = null;
 		availablePegs = null;
 		standPreppedForMove = false;
+		foundAllUpgradePieces = false;
+		upgrading = false;
 		reColorPegs();
 		reColorTiles(tiles);
 	}
@@ -386,7 +402,7 @@ public class TestScript : MonoBehaviour {
 			}
      	}
 
-		if(moving){
+		if(moving & !upgrading){
 			//moving piece
 			if(selectedPiece != null){
                 if (selectedPiece.name.Contains("Pawn")){
@@ -437,8 +453,7 @@ public class TestScript : MonoBehaviour {
 							darkPieces.Remove(capturedPiece);
 						}
 					}
-					upgradePieces();
-					resetForNextAction();
+					upgrading = true;
 				}
 			}
 
@@ -483,7 +498,66 @@ public class TestScript : MonoBehaviour {
 							
 						}
 					}
-					upgradePieces();
+					upgrading = true;
+				}
+			}
+		}
+
+		if(moving && upgrading){
+			if(!foundAllUpgradePieces){
+				upgradePieces();
+			} else {
+				if(piecesToUpgrade.Count > 0 && !menuScript.upgradeScreen.activeSelf){
+					menuScript.enableUpgradeScreen();
+					//enable selection based off of color
+					if(isLightPiece(piecesToUpgrade[0])){
+						lightOptions.SetActive(true);
+						darkOptions.SetActive(false);
+					} else {
+						lightOptions.SetActive(false);
+						darkOptions.SetActive(true);
+					}
+				} else if(piecesToUpgrade.Count > 0 && menuScript.upgradeScreen.activeSelf && upgradeSelection != null){
+					//upgrade Piece
+					GameObject piece = piecesToUpgrade[0];
+					GameObject newPiece;
+					if(upgradeSelection.Contains("KL")){
+						newPiece = Instantiate(lightKnightPrefab, piece.transform.position, Quaternion.identity);
+					} else if(upgradeSelection.Contains("BL")){
+						newPiece = Instantiate(lightBishopPrefab, piece.transform.position, Quaternion.identity);
+					} else if(upgradeSelection.Contains("RL")){
+						newPiece = Instantiate(lightRookPrefab, piece.transform.position, Quaternion.identity);
+					} else if(upgradeSelection.Contains("QL")){
+						newPiece = Instantiate(lightQueenPrefab, piece.transform.position, Quaternion.identity);
+					} else if(upgradeSelection.Contains("KD")){
+						newPiece = Instantiate(darkKnightPrefab, piece.transform.position, Quaternion.identity);
+					} else if(upgradeSelection.Contains("BD")){
+						newPiece = Instantiate(darkBishopPrefab, piece.transform.position, Quaternion.identity);
+					} else if(upgradeSelection.Contains("RD")){
+						newPiece = Instantiate(darkRookPrefab, piece.transform.position, Quaternion.identity);
+					} else{
+						newPiece = Instantiate(darkQueenPrefab, piece.transform.position, Quaternion.identity);
+					}
+					newPiece.transform.localScale = piece.transform.localScale;
+
+					if(upgradeSelection.Contains("L")){
+						lightPieces.Add(newPiece);
+						lightPieces.Remove(piece);
+						newPiece.transform.parent = GameObject.Find("White Pieces").transform;
+					} else {
+						darkPieces.Add(newPiece);
+						darkPieces.Remove(piece);
+						newPiece.transform.parent = GameObject.Find("Black Pieces").transform;
+					}
+
+					piecesToUpgrade.Remove(piece);
+					Destroy(piece);
+					upgradeSelection = null;
+					menuScript.enableHUD();
+					
+				}
+				if(piecesToUpgrade.Count == 0){
+					menuScript.enableHUD();
 					resetForNextAction();
 				}
 			}
@@ -1084,6 +1158,7 @@ public class TestScript : MonoBehaviour {
     }
 
 	void upgradePieces(){
+		//upgrade light pieces
 		List<GameObject> tempLightPieces = new List<GameObject>();
 		tempLightPieces.AddRange(lightPieces);
 		foreach(GameObject piece in tempLightPieces){
@@ -1134,17 +1209,12 @@ public class TestScript : MonoBehaviour {
 				bool shouldUpgrade = onBackMiddleOfLvl3 || onBackLeftOfLvl3NoStand || onBackRightOfLvl3NoStand || onBackOfSubLvlAndSubLvlOnBack;
 
 				if(shouldUpgrade){
-					//upgrade piece based off of menu selection
-					GameObject newPiece = Instantiate(lightKnightPrefab, piece.transform.position, Quaternion.identity);
-					lightPieces.Add(newPiece);
-					lightPieces.Remove(piece);
-					newPiece.transform.parent = GameObject.Find("White Pieces").transform;
-					Destroy(piece);
+					piecesToUpgrade.Add(piece);
 				}
 			}
 		}
 
-		//upgrade black pieces
+		//upgrade dark pieces
 		List<GameObject> tempDarkPieces = new List<GameObject>();
 		tempDarkPieces.AddRange(darkPieces);
 		foreach(GameObject piece in tempDarkPieces){
@@ -1195,23 +1265,20 @@ public class TestScript : MonoBehaviour {
 				bool shouldUpgrade = onFrontMiddleOfLvl1 || onFrontLeftOfLvl1NoStand || onFrontRightOfLvl1NoStand || onFrontOfSubLvlAndSubLvlOnFront;
 
 				if(shouldUpgrade){
-					//upgrade piece based off of menu selection
-					GameObject newPiece = Instantiate(darkKnightPrefab, piece.transform.position, Quaternion.identity);
-					darkPieces.Add(newPiece);
-					darkPieces.Remove(piece);
-					newPiece.transform.parent = GameObject.Find("Black Pieces").transform;
-					Destroy(piece);
-					//piece will be facing backwards. need to rotate it
+					piecesToUpgrade.Add(piece);
 				}
 			}
 		}
+		foundAllUpgradePieces = true;
 	}
 
     void updateTimers(){
         TimeSpan lightSpan = new TimeSpan(0, 0, (int)lightTimer);
         TimeSpan darkSpan = new TimeSpan(0, 0, (int)darkTimer);
-        GameObject.Find("LightTimer").GetComponent<Text>().text = string.Format("{0}:{1:00}", (int)lightSpan.TotalMinutes, lightSpan.Seconds);
-        GameObject.Find("DarkTimer").GetComponent<Text>().text = string.Format("{0}:{1:00}", (int)darkSpan.TotalMinutes, darkSpan.Seconds);
+		if(menuScript.hud.activeSelf){
+        	GameObject.Find("LightTimer").GetComponent<Text>().text = string.Format("{0}:{1:00}", (int)lightSpan.TotalMinutes, lightSpan.Seconds);
+        	GameObject.Find("DarkTimer").GetComponent<Text>().text = string.Format("{0}:{1:00}", (int)darkSpan.TotalMinutes, darkSpan.Seconds);
+		}
     }
 
 }

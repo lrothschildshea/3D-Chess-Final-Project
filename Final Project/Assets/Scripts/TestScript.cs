@@ -64,6 +64,12 @@ public class TestScript : MonoBehaviour {
 	public GameObject darkBishopPrefab;
 	public GameObject darkQueenPrefab;
 
+    private int movesWithOutPawnOrCapture;
+
+    private float lightTimer;
+    private float darkTimer;
+    private bool canCount;
+    private bool doOnce;
 
 	// Use this for initialization
 	void Start () {
@@ -80,6 +86,10 @@ public class TestScript : MonoBehaviour {
         stationaryPawns = new List<GameObject>();
         levels = new List<GameObject>();
 		bottomPrompt = GameObject.Find("Bottom Prompt");
+        lightTimer = 1800f;
+        darkTimer = 1800f;
+        canCount = true;
+        doOnce = false;
         //get lists of objects used throughout the game
         gameBoard = GameObject.Find("GameBoard");
         foreach(Transform group in gameBoard.transform){
@@ -186,6 +196,7 @@ public class TestScript : MonoBehaviour {
 	void resetForNextAction(){
 		setBottomPrompt("");
 		resetForNextActionWithoutTogglingTurn();
+        movesWithOutPawnOrCapture++;
 		lightsTurn = !lightsTurn;
 
 		List<GameObject> friendlyPieces;
@@ -202,27 +213,37 @@ public class TestScript : MonoBehaviour {
 			myKing = GameObject.Find("KingDark");
 		}
 
-		if(check(myKing, enemyPieces)){
-			
+        if (movesWithOutPawnOrCapture > 50){
+            setBottomPrompt("The last 50 consecutive moves have taken place without the movement of any pawn and without the capture of any piece! Game over.");
+            gameOver = true;
+        }
 
-			bool checkmate = true;
-			foreach(GameObject f in friendlyPieces){
-				List<GameObject> safeMoves = getSafeMoves(f, getAvailableMoves(f));
-				checkmate = checkmate && (safeMoves.Count == 0);
-				if(!checkmate){
-					break;
-				}
-			}
-			if(checkmate){
-				setBottomPrompt("You are in checkmate! Game over.");
-				gameOver = true;
-			} else {
-				setBottomPrompt("You are in check!");
-			}
-			GameObject.Find("GameBoard").GetComponent<AudioSource>().PlayOneShot(checkRedAlert, .2F);
-		}
+        bool legalMovePresent = false;
+        foreach (GameObject f in friendlyPieces){
+            List<GameObject> safeMoves = getSafeMoves(f, getAvailableMoves(f));
+            legalMovePresent = legalMovePresent || (safeMoves.Count != 0);
+            if (legalMovePresent){
+                break;
+            }
+        }
 
+        bool checkState = check(myKing, enemyPieces);
+        if (!legalMovePresent && checkState){
+            setBottomPrompt("You are in checkmate! Game over.");
+            gameOver = true;
+            
+        }
+        else if (!legalMovePresent && !checkState){
+            setBottomPrompt("You have enetered a stalemate! Game over.");
+            gameOver = true;
+        }
+        else if(legalMovePresent && checkState){
+            setBottomPrompt("You are in check!");
+        }
 
+        if (checkState){
+            GameObject.Find("GameBoard").GetComponent<AudioSource>().PlayOneShot(checkRedAlert, .2F);
+        }
 	}
 
 	void resetForNextActionWithoutTogglingTurn(){
@@ -247,7 +268,35 @@ public class TestScript : MonoBehaviour {
 		if(gameOver){
 			GameObject.Find("Menus").GetComponent<MenuControls>().enableGameOverScreen();
 		}
+
+        if(lightsTurn){
+            if (lightTimer >= 0.0f && canCount) {
+                lightTimer -= Time.deltaTime;
+
+            }
+            else if (lightTimer <= 0.0f && !doOnce){
+                canCount = false;
+                doOnce = true;
+                lightTimer = 0.0f;
+                setBottomPrompt("You have used more than the alloted time for your turn! Game over.");
+                gameOver = true;
+            }
+        }
+        else{
+            if(darkTimer >= 0.0f && canCount){
+                darkTimer -= Time.deltaTime;
+            }
+            else if(darkTimer <= 0.0f && !doOnce){
+                canCount = false;
+                doOnce = true;
+                darkTimer = 0.0f;
+                setBottomPrompt("You have used more than the alloted time for your turn! Game over.");
+                gameOver = true;
+            }
+        }
+
 		updateBottomPromt();
+        updateTimers();
 
 		//detect the object that has been clicked and change its color
 		if(Input.GetMouseButtonDown(0) && !moving) {
@@ -340,6 +389,9 @@ public class TestScript : MonoBehaviour {
 		if(moving){
 			//moving piece
 			if(selectedPiece != null){
+                if (selectedPiece.name.Contains("Pawn")){
+                    movesWithOutPawnOrCapture = -1;
+                }
 				Vector3 location = selectedTile.transform.position;
 				location.y += .05f;
 				selectedPiece.transform.position = Vector3.Lerp(selectedPiece.transform.position, location, Time.deltaTime * 3.5f);
@@ -347,7 +399,8 @@ public class TestScript : MonoBehaviour {
 				Vector3 dest = new Vector3(100000, 100000, 100000);
 
 				if(capturedPiece != null){
-					if(isLightPiece(capturedPiece)){
+                    movesWithOutPawnOrCapture = -1;
+                    if (isLightPiece(capturedPiece)){
 						dest = new Vector3(lightCapturedPiecesLocations[lightCapturedCounter-1, 0], capturedY, lightCapturedPiecesLocations[lightCapturedCounter-1, 1]);
 						capturedPiece.transform.position = Vector3.Lerp(capturedPiece.transform.position, dest, Time.deltaTime * 3.5f);
 					} else {
@@ -1153,5 +1206,12 @@ public class TestScript : MonoBehaviour {
 			}
 		}
 	}
+
+    void updateTimers(){
+        TimeSpan lightSpan = new TimeSpan(0, 0, (int)lightTimer);
+        TimeSpan darkSpan = new TimeSpan(0, 0, (int)darkTimer);
+        GameObject.Find("LightTimer").GetComponent<Text>().text = string.Format("{0}:{1:00}", (int)lightSpan.TotalMinutes, lightSpan.Seconds);
+        GameObject.Find("DarkTimer").GetComponent<Text>().text = string.Format("{0}:{1:00}", (int)darkSpan.TotalMinutes, darkSpan.Seconds);
+    }
 
 }

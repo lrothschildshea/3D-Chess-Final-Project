@@ -233,12 +233,8 @@ public class TestScript : MonoBehaviour {
         }
 
         bool legalMovePresent = false;
-        foreach (GameObject f in friendlyPieces){
-            List<GameObject> safeMoves = getSafeMoves(f, getAvailableMoves(f));
-            legalMovePresent = legalMovePresent || (safeMoves.Count != 0);
-            if (legalMovePresent){
-                break;
-            }
+        if (getAllLegalActions(friendlyPieces).Count > 0){
+            legalMovePresent = true;
         }
 
         bool checkState = check(myKing, enemyPieces);
@@ -345,9 +341,12 @@ public class TestScript : MonoBehaviour {
 					selectedPiece = clicked;
 					clicked.GetComponent<Renderer>().material.color = Color.yellow;
                     availableMoves = getAvailableMoves(selectedPiece);
-                    List<GameObject> safeMoves = getSafeMoves(selectedPiece, availableMoves);
-                    availableMoves = safeMoves;
-                    colorAvailableTiles(availableMoves);
+                    List<GameObject[]> safeMoves = getSafeMoves(selectedPiece, availableMoves);
+                    List<GameObject> availableTiles = new List<GameObject>();
+                    foreach(GameObject[] pair in safeMoves){
+                        availableTiles.Add(pair[1]);
+                    }
+                    colorAvailableTiles(availableTiles);
 				}
 
 				//click on destination tile
@@ -381,6 +380,7 @@ public class TestScript : MonoBehaviour {
 						selectedPlatform = parent.transform.parent.gameObject;
 						parent.transform.GetChild(0).gameObject.GetComponent<Renderer>().material.color = Color.green;
 						parent.transform.GetChild(1).gameObject.GetComponent<Renderer>().material.color = Color.green;
+                        //CHANGE TO GET LEGAL PEGS
 						availablePegs = getAvailablePegs(parent);
 						foreach(GameObject p in availablePegs){
 							p.GetComponent<Renderer>().material.color = Color.red; 
@@ -1110,6 +1110,7 @@ public class TestScript : MonoBehaviour {
     {
         List<GameObject> opponentMoveSet = new List<GameObject>();
         foreach(GameObject opponent in opposingPieces){
+            //NEED TO GET ALL LEGAL ACTIONS FOR THE OPPONENT
             opponentMoveSet.AddRange(getAvailableMoves(opponent));
         }
         if (opponentMoveSet.Contains(getTileUnderPiece(king))){
@@ -1118,7 +1119,7 @@ public class TestScript : MonoBehaviour {
         return false;
     }
 
-    List<GameObject> getSafeMoves(GameObject piece, List<GameObject> moves)
+    List<GameObject[]> getSafeMoves(GameObject piece, List<GameObject> moves)
     {
         GameObject myKing = GameObject.Find("KingLight");
         List<GameObject> opponentsPieces = new List<GameObject>();
@@ -1142,22 +1143,49 @@ public class TestScript : MonoBehaviour {
 			if(enemyOnPos != null){
 				enemyOnPos.transform.position = new Vector3(1000f, 1000f, 1000f);
 			}
-            movePieceToTile(piece, pos);
-            if(check(myKing, opponentsPieces))
-            {
+            simulateMovement(new GameObject[2] { piece, pos});
+            if(check(myKing, opponentsPieces)){
                 finalMoves.Remove(pos);
             }
 
 			if(enemyOnPos != null){
-				movePieceToTile(enemyOnPos, pos);
+                simulateMovement(new GameObject[2] { enemyOnPos, pos});
 			}
         }
-        movePieceToTile(piece, ogTile);
+        simulateMovement(new GameObject[2] { piece, ogTile});
 
-        return finalMoves;
+        List<GameObject[]> pairs = new List<GameObject[]>();
+        foreach(GameObject tile in finalMoves){
+            pairs.Add(new GameObject[2] { piece, tile });
+        }
+
+        return pairs;
     }
 
-	void upgradePieces(){
+    List<GameObject[]> getAllLegalActions(List<GameObject> friendlyPieces)
+    {
+        List<GameObject[]> listOfLegalActions = new List<GameObject[]>();
+
+        foreach(GameObject f in friendlyPieces){
+            listOfLegalActions.AddRange(getSafeMoves(f, getAvailableMoves(f)));
+        }
+
+        return listOfLegalActions;
+    }
+
+    List<GameObject[]> getLegalPegs(GameObject stand, List<GameObject> pegList){
+        List<GameObject[]> listOfLegalPegs = new List<GameObject[]>();
+
+        return listOfLegalPegs;
+    }
+
+    void simulateMovement(GameObject[] pair){
+        if (pair[1].name.Contains("Tile")) {
+            movePieceToTile(pair[0], pair[1]);
+        }
+    }
+
+    void upgradePieces(){
 		//upgrade light pieces
 		List<GameObject> tempLightPieces = new List<GameObject>();
 		tempLightPieces.AddRange(lightPieces);

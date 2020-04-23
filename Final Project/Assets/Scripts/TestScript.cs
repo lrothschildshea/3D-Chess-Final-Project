@@ -233,7 +233,8 @@ public class TestScript : MonoBehaviour {
         }
 
         bool legalMovePresent = false;
-        if (getAllLegalActions(friendlyPieces).Count > 0){
+        List<GameObject[]> actions = getAllLegalActions(friendlyPieces);
+        if (actions.Count > 0){
             legalMovePresent = true;
         }
 
@@ -270,6 +271,8 @@ public class TestScript : MonoBehaviour {
 		upgrading = false;
 		reColorPegs();
 		reColorTiles(tiles);
+        availableMoves = new List<GameObject>();
+        availablePegs = new List<GameObject>();
 	}
 	
 	// Update is called once per frame
@@ -340,13 +343,12 @@ public class TestScript : MonoBehaviour {
                 if (myPiece && selectedPiece == null && selectedPlatform == null && !isCaptured(clicked)){
 					selectedPiece = clicked;
 					clicked.GetComponent<Renderer>().material.color = Color.yellow;
-                    availableMoves = getAvailableMoves(selectedPiece);
-                    List<GameObject[]> safeMoves = getSafeMoves(selectedPiece, availableMoves);
-                    List<GameObject> availableTiles = new List<GameObject>();
+                    List<GameObject[]> safeMoves = getSafeMoves(selectedPiece, getAvailableMoves(selectedPiece));
+                    availableMoves = new List<GameObject>();
                     foreach(GameObject[] pair in safeMoves){
-                        availableTiles.Add(pair[1]);
+                        availableMoves.Add(pair[1]);
                     }
-                    colorAvailableTiles(availableTiles);
+                    colorAvailableTiles(availableMoves);
 				}
 
 				//click on destination tile
@@ -380,10 +382,11 @@ public class TestScript : MonoBehaviour {
 						selectedPlatform = parent.transform.parent.gameObject;
 						parent.transform.GetChild(0).gameObject.GetComponent<Renderer>().material.color = Color.green;
 						parent.transform.GetChild(1).gameObject.GetComponent<Renderer>().material.color = Color.green;
-                        //CHANGE TO GET LEGAL PEGS
-						availablePegs = getAvailablePegs(parent);
-						foreach(GameObject p in availablePegs){
-							p.GetComponent<Renderer>().material.color = Color.red; 
+                        availablePegs = new List<GameObject>();
+                        List<GameObject[]> pairs = getLegalPegs(parent, getAvailablePegs(parent));
+						foreach(GameObject[] pair in pairs){
+                            availablePegs.Add(pair[1]);
+							pair[1].GetComponent<Renderer>().material.color = Color.red; 
 						}
 					} else {
 						setBottomPrompt("That stand cannot be moved right now.");
@@ -463,7 +466,7 @@ public class TestScript : MonoBehaviour {
 
 
 				if(!standPreppedForMove){
-					//assign piece onp platform to platform for movement
+					//assign piece on platform to platform for movement
 					for(int i = 0; i < 4; i++){
 						GameObject piece = getPieceOnTile(selectedPlatform.transform.GetChild(i).gameObject);
 						if(piece != null){
@@ -1106,6 +1109,36 @@ public class TestScript : MonoBehaviour {
         piece.transform.position = location;
     }
 
+    void moveStandToPeg(GameObject stand, GameObject peg){
+        Vector3 location = peg.transform.position;
+        for (int i = 0; i < 4; i++)
+        {
+            GameObject piece = getPieceOnTile(stand.transform.GetChild(i).gameObject);
+            if (piece != null)
+            {
+                piece.transform.parent = stand.transform;
+            }
+        }
+
+        location.x -= .5f;
+        location.y += (2.2f - .051f);
+        location.z -= .5f;
+
+        stand.transform.position = location;
+
+        for (int i = 0; i < 4; i++){
+            GameObject piece = getPieceOnTile(stand.transform.GetChild(i).gameObject);
+            if (piece != null){
+                if (isLightPiece(piece)){
+                    piece.transform.parent = GameObject.Find("White Pieces").transform;
+                }
+                else{
+                    piece.transform.parent = GameObject.Find("Black Pieces").transform;
+                }
+            }
+        }
+    }
+
     bool check(GameObject king, List<GameObject> opposingPieces)
     {
         List<GameObject> opponentMoveSet = new List<GameObject>();
@@ -1166,22 +1199,71 @@ public class TestScript : MonoBehaviour {
     {
         List<GameObject[]> listOfLegalActions = new List<GameObject[]>();
 
-        foreach(GameObject f in friendlyPieces){
+        foreach (GameObject f in friendlyPieces){
             listOfLegalActions.AddRange(getSafeMoves(f, getAvailableMoves(f)));
+        }
+
+        List<GameObject> moveableStands = getAvailableStands();
+        foreach(GameObject s in moveableStands){
+            List<GameObject> pegsAvailableToStand = getAvailablePegs(s);
+            listOfLegalActions.AddRange(getLegalPegs(s, pegsAvailableToStand));
         }
 
         return listOfLegalActions;
     }
 
     List<GameObject[]> getLegalPegs(GameObject stand, List<GameObject> pegList){
-        List<GameObject[]> listOfLegalPegs = new List<GameObject[]>();
+        GameObject parent = stand.transform.parent.gameObject;
 
-        return listOfLegalPegs;
+        GameObject myKing = GameObject.Find("KingLight");
+        List<GameObject> opponentsPieces = new List<GameObject>();
+        if (lightsTurn)
+        {
+            opponentsPieces.AddRange(darkPieces);
+        }
+        else
+        {
+            myKing = GameObject.Find("KingDark");
+            opponentsPieces.AddRange(lightPieces);
+        }
+
+        GameObject ogPeg = getPegUnderStand(stand);
+        List<GameObject> finalMoves = new List<GameObject>();
+        finalMoves.AddRange(pegList);
+
+        foreach(GameObject p in pegList){
+            simulateMovement(new GameObject[2] { parent, p});
+            if (check(myKing, opponentsPieces)){
+                finalMoves.Remove(p);
+            }
+        }
+
+        simulateMovement(new GameObject[2] { parent, ogPeg });
+
+        List<GameObject[]> pairs = new List<GameObject[]>();
+        foreach(GameObject peg in finalMoves){
+            pairs.Add(new GameObject[2] { stand, peg });
+        }
+        return pairs;
+    }
+
+    List<GameObject> getAvailableStands(){
+        List<GameObject> moveableStands = new List<GameObject>();
+        foreach(GameObject s in stands){
+            if (canMoveStand(s.transform.parent.gameObject) < 2){
+                moveableStands.Add(s);
+            }
+        }
+        return moveableStands;
     }
 
     void simulateMovement(GameObject[] pair){
         if (pair[1].name.Contains("Tile")) {
             movePieceToTile(pair[0], pair[1]);
+        }
+        else if (pair[1].name.Contains("Peg"))
+        {
+            moveStandToPeg(pair[0], pair[1]);
         }
     }
 
@@ -1307,6 +1389,19 @@ public class TestScript : MonoBehaviour {
         	GameObject.Find("LightTimer").GetComponent<Text>().text = string.Format("{0}:{1:00}", (int)lightSpan.TotalMinutes, lightSpan.Seconds);
         	GameObject.Find("DarkTimer").GetComponent<Text>().text = string.Format("{0}:{1:00}", (int)darkSpan.TotalMinutes, darkSpan.Seconds);
 		}
+    }
+
+    GameObject getPegUnderStand(GameObject stand){
+        GameObject peg = pegs[0];
+        float min_dist = distance2D(stand.transform.position, peg.transform.position);
+        for(int i = 1; i < pegs.Count; i++){
+            float curr_dist = distance2D(stand.transform.position, pegs[i].transform.position);
+            if (min_dist > curr_dist){
+                peg = pegs[i];
+                min_dist = curr_dist;
+            }
+        }
+        return peg;
     }
 
 }

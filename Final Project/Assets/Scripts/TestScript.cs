@@ -1393,9 +1393,9 @@ public class TestScript : MonoBehaviour {
 
     GameObject getPegUnderStand(GameObject stand){
         GameObject peg = pegs[0];
-        float min_dist = distance2D(stand.transform.position, peg.transform.position);
+        float min_dist = (stand.transform.position-peg.transform.position).magnitude;
         for(int i = 1; i < pegs.Count; i++){
-            float curr_dist = distance2D(stand.transform.position, pegs[i].transform.position);
+            float curr_dist = (stand.transform.position-pegs[i].transform.position).magnitude;
             if (min_dist > curr_dist){
                 peg = pegs[i];
                 min_dist = curr_dist;

@@ -78,10 +78,10 @@ public class TestScript : MonoBehaviour {
     private bool doOnce;
 
 	private bool intermediatesPrepped;
-	private Vector3 t1;
-	private Vector3 t2;
-	private Vector3 t3;
-	private Vector3 t4;
+	private Vector3 t1; //move left or right
+	private Vector3 t2; //go up/down
+	private Vector3 t3;// slide along z axis
+	private Vector3 t4;// go to right or left to peg
 
 	private bool finishedT1;
 	private bool finishedT2;

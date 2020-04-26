@@ -77,6 +77,20 @@ public class TestScript : MonoBehaviour {
     private bool canCount;
     private bool doOnce;
 
+	private bool intermediatesPrepped;
+	private Vector3 t1;
+	private Vector3 t2;
+	private Vector3 t3;
+	private Vector3 t4;
+
+	private bool finishedT1;
+	private bool finishedT2;
+	private bool finishedT3;
+
+	private bool changeStandY;
+	private bool hasSetChangeStandY;
+
+
 	private MenuControls menuScript;
 
 	// Use this for initialization
@@ -104,6 +118,16 @@ public class TestScript : MonoBehaviour {
 		upgradeSelection = null;
 		lightOptions = GameObject.Find("lightOptions");
 		darkOptions = GameObject.Find("darkOptions");
+		intermediatesPrepped = false;
+		t1 = new Vector3(1000f, 1000f, 1000f);
+		t2 = new Vector3(1000f, 1000f, 1000f);
+		t3 = new Vector3(1000f, 1000f, 1000f);
+		t4 = new Vector3(1000f, 1000f, 1000f);
+		finishedT1 = false;
+		finishedT2 = false;
+		finishedT3 = false;
+		changeStandY = false;
+		hasSetChangeStandY = false;
         //get lists of objects used throughout the game
         gameBoard = GameObject.Find("GameBoard");
         foreach(Transform group in gameBoard.transform){
@@ -273,6 +297,16 @@ public class TestScript : MonoBehaviour {
 		reColorTiles(tiles);
         availableMoves = new List<GameObject>();
         availablePegs = new List<GameObject>();
+		t1 = new Vector3(1000f, 1000f, 1000f);
+		t2 = new Vector3(1000f, 1000f, 1000f);
+		t3 = new Vector3(1000f, 1000f, 1000f);
+		t4 = new Vector3(1000f, 1000f, 1000f);
+		hasSetChangeStandY = false;
+		changeStandY = false;
+		intermediatesPrepped = false;
+		finishedT1 = false;
+		finishedT2 = false;
+		finishedT3 = false;
 	}
 	
 	// Update is called once per frame
@@ -462,8 +496,6 @@ public class TestScript : MonoBehaviour {
 
 			//moving platform
 			if(selectedPlatform != null){
-				Vector3 location = selectedPlatformLoc.transform.position;
-
 
 				if(!standPreppedForMove){
 					//assign piece on platform to platform for movement
@@ -477,11 +509,63 @@ public class TestScript : MonoBehaviour {
 				}
 
 				//adjust height
+				Vector3 location = selectedPlatformLoc.transform.position;
 				location.x -= .5f;
 				location.y += (2.2f - .051f);
 				location.z -= .5f;
 
-				selectedPlatform.transform.position = Vector3.Lerp(selectedPlatform.transform.position, location, Time.deltaTime * 3.5f);
+
+				if(!hasSetChangeStandY){
+					changeStandY = Math.Abs(location.y - selectedPlatform.transform.position.y) > .2f;
+					hasSetChangeStandY = true;
+				}
+
+				if(changeStandY){
+					float leftDist = (selectedPlatform.transform.position - GameObject.Find("Captured Dark").transform.position).magnitude;
+					float rightDist = (selectedPlatform.transform.position - GameObject.Find("Captured Light").transform.position).magnitude;
+
+					bool onLeft = leftDist < rightDist;
+
+					if(!intermediatesPrepped){
+						intermediatesPrepped = true;
+						t1 = selectedPlatform.transform.position;
+						if(onLeft){
+							t1.x -= 3;
+						} else{
+							t1.x += 3;
+						}
+						
+						t2 = new Vector3(t1.x, location.y, t1.z);
+						t3 = new Vector3(t2.x, t2.y, location.z);
+						t4 = location;
+					}
+					
+					if(!finishedT1){
+						selectedPlatform.transform.position = Vector3.Lerp(selectedPlatform.transform.position, t1, Time.deltaTime * 3.5f);
+						if((selectedPlatform.transform.position - t1).magnitude < .02){
+							selectedPlatform.transform.position = t1;
+							finishedT1 = true;
+						}
+					} else if(!finishedT2){
+						selectedPlatform.transform.position = Vector3.Lerp(selectedPlatform.transform.position, t2, Time.deltaTime * 3.5f);
+						if((selectedPlatform.transform.position - t2).magnitude < .02){
+							selectedPlatform.transform.position = t2;
+							finishedT2 = true;
+						}
+					} else if(!finishedT3){
+						selectedPlatform.transform.position = Vector3.Lerp(selectedPlatform.transform.position, t3, Time.deltaTime * 3.5f);
+						if((selectedPlatform.transform.position - t3).magnitude < .02){
+							selectedPlatform.transform.position = t3;
+							finishedT3 = true;
+						}
+					} else {
+						selectedPlatform.transform.position = Vector3.Lerp(selectedPlatform.transform.position, t4, Time.deltaTime * 3.5f);
+					}
+				} else {
+					selectedPlatform.transform.position = Vector3.Lerp(selectedPlatform.transform.position, location, Time.deltaTime * 3.5f);
+				}
+
+				
 
 				if((selectedPlatform.transform.position - location).magnitude < .02){
 					selectedPlatform.transform.position = location;
@@ -1047,7 +1131,6 @@ public class TestScript : MonoBehaviour {
 				if((lightsTurn && isLightPiece(piece)) || (!lightsTurn && isDarkPiece(piece))){
 					count += 1;
 				} else {
-					Debug.Log("enemy on stand");
 					return 10;
 				}
 			}

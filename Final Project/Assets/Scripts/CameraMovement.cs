@@ -26,6 +26,10 @@ public class CameraMovement : MonoBehaviour {
 			return;
 		}
 
+		if(GameObject.Find("GameBoard").GetComponent<TestScript>().paused){
+			return;
+		}
+
 		//camera rotation
 		if(Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)){
 			transform.eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y + cameraHorizontalSpeed*Time.deltaTime, transform.eulerAngles.z);

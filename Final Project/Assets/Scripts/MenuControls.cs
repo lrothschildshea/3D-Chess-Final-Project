@@ -10,6 +10,7 @@ public class MenuControls : MonoBehaviour {
 	public GameObject hud;
 	public GameObject upgradeScreen;
 	private GameObject gameOverScreen;
+	private GameObject pauseScreen;
 
 	void Start () {
 		welcomeScreen = GameObject.Find("WelcomeScreen");
@@ -17,13 +18,18 @@ public class MenuControls : MonoBehaviour {
 		hud = GameObject.Find("HUD");
 		upgradeScreen = GameObject.Find("UpgradeScreen");
 		gameOverScreen = GameObject.Find("GameOverScreen");
+		pauseScreen = GameObject.Find("PauseScreen");
 
 		disableAllExcept(welcomeScreen);
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		
+		if(Input.GetKeyDown(KeyCode.Escape) && !welcomeScreen.activeSelf && !instructionsScreen.activeSelf && !gameOverScreen.activeSelf && !upgradeScreen.activeSelf && !pauseScreen.activeSelf){
+			enablePauseScreen();
+		} else if(Input.GetKeyDown(KeyCode.Escape) && pauseScreen.activeSelf){
+			enableHUD();
+		}
 	}
 
 	void disableAllExcept(GameObject exception){
@@ -41,6 +47,9 @@ public class MenuControls : MonoBehaviour {
 		}
 		if(exception != gameOverScreen){
 			disableGameOverScreen();
+		}
+		if(exception != pauseScreen){
+			disablePauseScreen();
 		}
 	}
 
@@ -89,5 +98,16 @@ public class MenuControls : MonoBehaviour {
 
 	public void disableGameOverScreen(){
 		gameOverScreen.SetActive(false);
+	}
+
+	public void enablePauseScreen(){
+		pauseScreen.SetActive(true);
+		disableAllExcept(pauseScreen);
+		GameObject.Find("GameBoard").GetComponent<TestScript>().paused = true;
+	}
+
+	public void disablePauseScreen(){
+		pauseScreen.SetActive(false);
+		GameObject.Find("GameBoard").GetComponent<TestScript>().paused = false;
 	}
 }

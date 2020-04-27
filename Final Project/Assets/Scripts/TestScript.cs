@@ -90,6 +90,8 @@ public class TestScript : MonoBehaviour {
 	private bool changeStandY;
 	private bool hasSetChangeStandY;
 
+	public bool paused;
+
 
 	private MenuControls menuScript;
 
@@ -128,6 +130,7 @@ public class TestScript : MonoBehaviour {
 		finishedT3 = false;
 		changeStandY = false;
 		hasSetChangeStandY = false;
+		paused = false;
         //get lists of objects used throughout the game
         gameBoard = GameObject.Find("GameBoard");
         foreach(Transform group in gameBoard.transform){
@@ -318,7 +321,7 @@ public class TestScript : MonoBehaviour {
 			GameObject.Find("Menus").GetComponent<MenuControls>().enableGameOverScreen();
 		}
 
-        if(lightsTurn){
+        if(lightsTurn && !paused){
             if (lightTimer >= 0.0f && canCount) {
                 lightTimer -= Time.deltaTime;
 
@@ -331,7 +334,7 @@ public class TestScript : MonoBehaviour {
                 gameOver = true;
             }
         }
-        else{
+        else if(!paused){
             if(darkTimer >= 0.0f && canCount){
                 darkTimer -= Time.deltaTime;
             }

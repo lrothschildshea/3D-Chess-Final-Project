@@ -59,6 +59,7 @@
      <Compile Include="Assets\Scripts\upgradeSelection.cs" />
      <Compile Include="Assets\SpaceSkies Free\Demo\Scripts\LookCamera.cs" />
      <Compile Include="Assets\SpaceSkies Free\Demo\Scripts\SkyboxChanger.cs" />
+     <None Include="Assets\Basic Metal Texture Pack\readme.txt" />
      <None Include="Assets\Free Low Poly Chess Set\README.txt" />
  <Reference Include="UnityEngine.CoreModule">
  <HintPath>C:/Program Files/Unity/Hub/Editor/2017.4.36f1/Editor/Data/Managed/UnityEngine/UnityEngine.CoreModule.dll</HintPath>

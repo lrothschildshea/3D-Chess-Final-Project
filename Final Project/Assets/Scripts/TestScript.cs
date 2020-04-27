@@ -1047,10 +1047,10 @@ public class TestScript : MonoBehaviour {
     {
         for (int i = 0; i < moves.Count; i++){
             if (isLightTile(moves[i])){
-                moves[i].GetComponent<Renderer>().material.color = Color.cyan;
+                moves[i].GetComponent<Renderer>().material.color = new Color(215f/255f, 117f/255f, 130f/255f);
             }
             else{
-                moves[i].GetComponent<Renderer>().material.color = Color.blue;
+                moves[i].GetComponent<Renderer>().material.color = new Color(109f/255f, 54f/255f, 147f/255f);
             }
         }
     }

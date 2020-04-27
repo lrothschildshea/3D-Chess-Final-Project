@@ -414,8 +414,8 @@ public class TestScript : MonoBehaviour {
 					if(canMoveStand(clicked.transform.parent.gameObject.transform.parent.gameObject) < 2){
 						GameObject parent = clicked.transform.parent.gameObject;
 						selectedPlatform = parent.transform.parent.gameObject;
-						parent.transform.GetChild(0).gameObject.GetComponent<Renderer>().material.color = Color.green;
-						parent.transform.GetChild(1).gameObject.GetComponent<Renderer>().material.color = Color.green;
+						parent.transform.GetChild(0).gameObject.GetComponent<Renderer>().material.color = Color.yellow;
+						parent.transform.GetChild(1).gameObject.GetComponent<Renderer>().material.color = Color.yellow;
                         availablePegs = new List<GameObject>();
                         List<GameObject[]> pairs = getLegalPegs(parent, getAvailablePegs(parent));
 						foreach(GameObject[] pair in pairs){
@@ -432,7 +432,7 @@ public class TestScript : MonoBehaviour {
 				if(selectedPlatform != null && isPeg(clicked) && availablePegs.Contains(clicked)){
 					selectedPlatformLoc = clicked;
 					reColorPegs();
-					clicked.GetComponent<Renderer>().material.color = Color.green;
+					clicked.GetComponent<Renderer>().material.color = Color.yellow;
 					moving = true;
 				}
 
@@ -1047,10 +1047,19 @@ public class TestScript : MonoBehaviour {
     {
         for (int i = 0; i < moves.Count; i++){
             if (isLightTile(moves[i])){
-                moves[i].GetComponent<Renderer>().material.color = new Color(215f/255f, 117f/255f, 130f/255f);
+				if(getPieceOnTile(moves[i]) == null){
+					moves[i].GetComponent<Renderer>().material.color = new Color(215f/255f, 117f/255f, 130f/255f);
+				} else {
+					moves[i].GetComponent<Renderer>().material.color = new Color(204f/255f, 33f/255f, 33f/255f);
+				}
             }
             else{
-                moves[i].GetComponent<Renderer>().material.color = new Color(109f/255f, 54f/255f, 147f/255f);
+				if(getPieceOnTile(moves[i]) == null){
+					moves[i].GetComponent<Renderer>().material.color = new Color(109f/255f, 54f/255f, 147f/255f);
+				} else {
+					moves[i].GetComponent<Renderer>().material.color = new Color(145f/255f, 25f/255f, 25f/255f);
+				}
+                
             }
         }
     }

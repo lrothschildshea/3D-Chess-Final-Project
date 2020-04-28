@@ -91,6 +91,8 @@ public class TestScript : MonoBehaviour {
 	private bool hasSetChangeStandY;
 
 	public bool paused;
+	public bool singlePlayer;
+	private List<GameObject[]> legalmoves;
 
 
 	private MenuControls menuScript;
@@ -131,6 +133,7 @@ public class TestScript : MonoBehaviour {
 		changeStandY = false;
 		hasSetChangeStandY = false;
 		paused = false;
+		singlePlayer = false;
         //get lists of objects used throughout the game
         gameBoard = GameObject.Find("GameBoard");
         foreach(Transform group in gameBoard.transform){
@@ -260,8 +263,8 @@ public class TestScript : MonoBehaviour {
         }
 
         bool legalMovePresent = false;
-        List<GameObject[]> actions = getAllLegalActions(friendlyPieces);
-        if (actions.Count > 0){
+        legalmoves = getAllLegalActions(friendlyPieces);
+        if (legalmoves.Count > 0){
             legalMovePresent = true;
         }
 
@@ -318,7 +321,7 @@ public class TestScript : MonoBehaviour {
 			return;
 		}
 		if(gameOver){
-			GameObject.Find("Menus").GetComponent<MenuControls>().enableGameOverScreen();
+			menuScript.enableGameOverScreen();
 		}
 
         if(lightsTurn && !paused){
@@ -350,99 +353,128 @@ public class TestScript : MonoBehaviour {
 		updateBottomPromt();
         updateTimers();
 
-        Debug.Log(menuScript.singlePlayer);
+		if(!singlePlayer || lightsTurn){
+			//player makes a move
+			//detect the object that has been clicked and change its color
+			if (Input.GetMouseButtonDown(0) && !moving) {
+				Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+				RaycastHit hit;
+				
+				if(Physics.Raycast(ray, out hit, 100)){
+					GameObject clicked = hit.transform.gameObject;
 
-        //detect the object that has been clicked and change its color
-        if (Input.GetMouseButtonDown(0) && !moving) {
-			Ray ray = Camera.main.ScreenPointToRay( Input.mousePosition );
-			RaycastHit hit;
-			
-			if(Physics.Raycast(ray, out hit, 100)){
-				GameObject clicked = hit.transform.gameObject;
-
-				//deselection
-				if(clicked == selectedPiece){
-					if(isLightPiece(selectedPiece)){
-						selectedPiece.GetComponent<Renderer>().material.color = lightTeamColor;
-					} else {
-						selectedPiece.GetComponent<Renderer>().material.color = darkTeamColor;
+					//deselection
+					if(clicked == selectedPiece){
+						if(isLightPiece(selectedPiece)){
+							selectedPiece.GetComponent<Renderer>().material.color = lightTeamColor;
+						} else {
+							selectedPiece.GetComponent<Renderer>().material.color = darkTeamColor;
+						}
+						resetForNextActionWithoutTogglingTurn();
+						return;
+					} else if(clicked.transform.parent.gameObject.transform.parent.gameObject == selectedPlatform){
+						selectedPlatform.transform.GetChild(4).transform.GetChild(0).gameObject.GetComponent<Renderer>().material.color = standColor;
+						selectedPlatform.transform.GetChild(4).transform.GetChild(1).gameObject.GetComponent<Renderer>().material.color = standColor;
+						resetForNextActionWithoutTogglingTurn();
+						return;
 					}
-					resetForNextActionWithoutTogglingTurn();
-					return;
-				} else if(clicked.transform.parent.gameObject.transform.parent.gameObject == selectedPlatform){
-					selectedPlatform.transform.GetChild(4).transform.GetChild(0).gameObject.GetComponent<Renderer>().material.color = standColor;
-					selectedPlatform.transform.GetChild(4).transform.GetChild(1).gameObject.GetComponent<Renderer>().material.color = standColor;
-					resetForNextActionWithoutTogglingTurn();
-					return;
-				}
 
-				bool myPiece = (lightsTurn && isLightPiece(clicked)) || (!lightsTurn && isDarkPiece(clicked));
+					bool myPiece = (lightsTurn && isLightPiece(clicked)) || (!lightsTurn && isDarkPiece(clicked));
 
-				//click on piece
-                if (myPiece && selectedPiece == null && selectedPlatform == null && !isCaptured(clicked)){
-					selectedPiece = clicked;
-					clicked.GetComponent<Renderer>().material.color = Color.yellow;
-                    List<GameObject[]> safeMoves = getSafeMoves(selectedPiece, getAvailableMoves(selectedPiece));
-                    availableMoves = new List<GameObject>();
-                    foreach(GameObject[] pair in safeMoves){
-                        availableMoves.Add(pair[1]);
-                    }
-                    colorAvailableTiles(availableMoves);
-				}
-
-				//click on destination tile
-				if(selectedPiece != null && isTile(clicked) && availableMoves.Contains(clicked)){
-                    int available = tileAvailable(clicked, selectedPiece);
-					if(available > 0){
-						reColorTiles(availableMoves);
-                        if (selectedPiece.name.Contains("Pawn"))
-                        {
-                            stationaryPawns.Remove(selectedPiece);
-                        }
-						selectedTile = clicked;
+					//click on piece
+					if (myPiece && selectedPiece == null && selectedPlatform == null && !isCaptured(clicked)){
+						selectedPiece = clicked;
 						clicked.GetComponent<Renderer>().material.color = Color.yellow;
-						moving = true;
-						if(available > 1){
-							capturedPiece = getPieceOnTile(clicked);
-							if(isLightPiece(capturedPiece)){
-								lightCapturedCounter++;
-							} else {
-								darkCapturedCounter++;
+						List<GameObject[]> safeMoves = getSafeMoves(selectedPiece, getAvailableMoves(selectedPiece));
+						availableMoves = new List<GameObject>();
+						foreach(GameObject[] pair in safeMoves){
+							availableMoves.Add(pair[1]);
+						}
+						colorAvailableTiles(availableMoves);
+					}
+
+					//click on destination tile
+					if(selectedPiece != null && isTile(clicked) && availableMoves.Contains(clicked)){
+						int available = tileAvailable(clicked, selectedPiece);
+						if(available > 0){
+							reColorTiles(availableMoves);
+							if (selectedPiece.name.Contains("Pawn"))
+							{
+								stationaryPawns.Remove(selectedPiece);
+							}
+							selectedTile = clicked;
+							clicked.GetComponent<Renderer>().material.color = Color.yellow;
+							moving = true;
+							if(available > 1){
+								capturedPiece = getPieceOnTile(clicked);
+								if(isLightPiece(capturedPiece)){
+									lightCapturedCounter++;
+								} else {
+									darkCapturedCounter++;
+								}
 							}
 						}
+
 					}
 
-				}
-
-				//click on stand
-				if(isStand(clicked) && selectedPlatform == null && selectedPiece == null){
-					if(canMoveStand(clicked.transform.parent.gameObject.transform.parent.gameObject) < 2){
-						GameObject parent = clicked.transform.parent.gameObject;
-						selectedPlatform = parent.transform.parent.gameObject;
-						parent.transform.GetChild(0).gameObject.GetComponent<Renderer>().material.color = Color.yellow;
-						parent.transform.GetChild(1).gameObject.GetComponent<Renderer>().material.color = Color.yellow;
-                        availablePegs = new List<GameObject>();
-                        List<GameObject[]> pairs = getLegalPegs(parent, getAvailablePegs(parent));
-						foreach(GameObject[] pair in pairs){
-                            availablePegs.Add(pair[1]);
-							pair[1].GetComponent<Renderer>().material.color = Color.red; 
+					//click on stand
+					if(isStand(clicked) && selectedPlatform == null && selectedPiece == null){
+						if(canMoveStand(clicked.transform.parent.gameObject.transform.parent.gameObject) < 2){
+							GameObject parent = clicked.transform.parent.gameObject;
+							selectedPlatform = parent.transform.parent.gameObject;
+							parent.transform.GetChild(0).gameObject.GetComponent<Renderer>().material.color = Color.yellow;
+							parent.transform.GetChild(1).gameObject.GetComponent<Renderer>().material.color = Color.yellow;
+							availablePegs = new List<GameObject>();
+							List<GameObject[]> pairs = getLegalPegs(parent, getAvailablePegs(parent));
+							foreach(GameObject[] pair in pairs){
+								availablePegs.Add(pair[1]);
+								pair[1].GetComponent<Renderer>().material.color = Color.red; 
+							}
+						} else {
+							setBottomPrompt("That stand cannot be moved right now.");
 						}
-					} else {
-						setBottomPrompt("That stand cannot be moved right now.");
+
+					}
+
+					//click on destination peg
+					if(selectedPlatform != null && isPeg(clicked) && availablePegs.Contains(clicked)){
+						selectedPlatformLoc = clicked;
+						reColorPegs();
+						clicked.GetComponent<Renderer>().material.color = Color.yellow;
+						moving = true;
 					}
 
 				}
-
-				//click on destination peg
-				if(selectedPlatform != null && isPeg(clicked) && availablePegs.Contains(clicked)){
-					selectedPlatformLoc = clicked;
-					reColorPegs();
-					clicked.GetComponent<Renderer>().material.color = Color.yellow;
-					moving = true;
-				}
-
 			}
-     	}
+
+
+
+		} else {
+			//ai makes a move
+			if(!moving && (selectedPiece != null || selectedPlatform != null)){
+				moving = true;
+			}
+			if(!moving){
+				List<GameObject[]> moves = legalmoves;//getAllLegalActions(darkPieces);
+				GameObject[] move = moves[0];
+				if(isStand(move[0])){
+					selectedPlatform = move[0].transform.parent.gameObject;
+					selectedPlatformLoc = move[1];
+				} else {
+					selectedPiece = move[0];
+					selectedTile = move[1];
+
+					if (selectedPiece.name.Contains("Pawn")){
+						stationaryPawns.Remove(selectedPiece);
+					}
+
+					capturedPiece = getPieceOnTile(selectedTile);
+					if(capturedPiece != null){
+						lightCapturedCounter++;
+					}
+				}
+			}
+		}
 
 		if(moving & !upgrading){
 			//moving piece
@@ -599,7 +631,28 @@ public class TestScript : MonoBehaviour {
 			if(!foundAllUpgradePieces){
 				upgradePieces();
 			} else {
-				if(piecesToUpgrade.Count > 0 && !menuScript.upgradeScreen.activeSelf){
+				if(singlePlayer && !lightsTurn && piecesToUpgrade.Count > 0 && isDarkPiece(piecesToUpgrade[0])){
+
+					GameObject piece = piecesToUpgrade[0];
+					float rand = UnityEngine.Random.Range(0f, 1f);
+					GameObject newPiece;
+					if(rand < .1){
+						newPiece = Instantiate(darkBishopPrefab, piece.transform.position, Quaternion.identity);
+					} else if(rand < .2){
+						newPiece = Instantiate(darkRookPrefab, piece.transform.position, Quaternion.identity);
+					} else if(rand < .5){
+						newPiece = Instantiate(darkKnightPrefab, piece.transform.position, Quaternion.identity);
+					} else {
+						newPiece = Instantiate(darkQueenPrefab, piece.transform.position, Quaternion.identity);
+					}
+					newPiece.transform.localScale = piece.transform.localScale;
+					darkPieces.Add(newPiece);
+					darkPieces.Remove(piece);
+					newPiece.transform.parent = GameObject.Find("Black Pieces").transform;
+					piecesToUpgrade.Remove(piece);
+					Destroy(piece);
+
+				} else if(piecesToUpgrade.Count > 0 && !menuScript.upgradeScreen.activeSelf){
 					menuScript.enableUpgradeScreen();
 					//enable selection based off of color
 					if(isLightPiece(piecesToUpgrade[0])){

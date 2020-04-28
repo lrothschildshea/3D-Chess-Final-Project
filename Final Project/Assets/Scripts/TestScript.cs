@@ -350,8 +350,10 @@ public class TestScript : MonoBehaviour {
 		updateBottomPromt();
         updateTimers();
 
-		//detect the object that has been clicked and change its color
-		if(Input.GetMouseButtonDown(0) && !moving) {
+        Debug.Log(menuScript.singlePlayer);
+
+        //detect the object that has been clicked and change its color
+        if (Input.GetMouseButtonDown(0) && !moving) {
 			Ray ray = Camera.main.ScreenPointToRay( Input.mousePosition );
 			RaycastHit hit;
 			

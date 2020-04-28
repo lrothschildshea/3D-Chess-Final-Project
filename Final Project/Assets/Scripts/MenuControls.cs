@@ -12,6 +12,8 @@ public class MenuControls : MonoBehaviour {
 	private GameObject gameOverScreen;
 	private GameObject pauseScreen;
 
+    internal bool singlePlayer;
+
 	void Start () {
 		welcomeScreen = GameObject.Find("WelcomeScreen");
 		instructionsScreen = GameObject.Find("InstructionsScreen");
@@ -19,7 +21,7 @@ public class MenuControls : MonoBehaviour {
 		upgradeScreen = GameObject.Find("UpgradeScreen");
 		gameOverScreen = GameObject.Find("GameOverScreen");
 		pauseScreen = GameObject.Find("PauseScreen");
-
+        singlePlayer = false;
 		disableAllExcept(welcomeScreen);
 	}
 	
@@ -110,4 +112,14 @@ public class MenuControls : MonoBehaviour {
 		pauseScreen.SetActive(false);
 		GameObject.Find("GameBoard").GetComponent<TestScript>().paused = false;
 	}
+
+    public void singePlayerStart(){
+        singlePlayer = true;
+        startGame();
+    }
+    
+    public void twoPlayerStart(){
+        singlePlayer = false;
+        startGame();
+    }
 }

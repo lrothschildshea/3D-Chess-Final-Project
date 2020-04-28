@@ -313,6 +313,7 @@ public class TestScript : MonoBehaviour {
 		finishedT1 = false;
 		finishedT2 = false;
 		finishedT3 = false;
+		piecesToUpgrade = new List<GameObject>();
 	}
 	
 	// Update is called once per frame
@@ -322,6 +323,7 @@ public class TestScript : MonoBehaviour {
 		}
 		if(gameOver){
 			menuScript.enableGameOverScreen();
+			return;
 		}
 
         if(lightsTurn && !paused){
@@ -455,8 +457,29 @@ public class TestScript : MonoBehaviour {
 				moving = true;
 			}
 			if(!moving){
-				List<GameObject[]> moves = legalmoves;//getAllLegalActions(darkPieces);
-				GameObject[] move = moves[0];
+				List<GameObject[]> moves = legalmoves;
+
+
+
+
+				
+				List<GameObject[]> bestMoves = new List<GameObject[]>();
+				int bestMovesValue = -2000;
+
+				foreach(GameObject[] m in moves){
+					int value = evaluateAIMove(m);
+					if(value > bestMovesValue){
+						bestMovesValue = value;
+						bestMoves = new List<GameObject[]>();
+						bestMoves.Add(m);
+					} else if(value == bestMovesValue){
+						bestMoves.Add(m);
+					}
+				}
+
+				//choose random best move
+				GameObject[] move = bestMoves[UnityEngine.Random.Range(0, bestMoves.Count)];
+
 				if(isStand(move[0])){
 					selectedPlatform = move[0].transform.parent.gameObject;
 					selectedPlatformLoc = move[1];
@@ -631,7 +654,7 @@ public class TestScript : MonoBehaviour {
 			if(!foundAllUpgradePieces){
 				upgradePieces();
 			} else {
-				if(singlePlayer && !lightsTurn && piecesToUpgrade.Count > 0 && isDarkPiece(piecesToUpgrade[0])){
+				if(singlePlayer && piecesToUpgrade.Count > 0 && isDarkPiece(piecesToUpgrade[0])){
 
 					GameObject piece = piecesToUpgrade[0];
 					float rand = UnityEngine.Random.Range(0f, 1f);
@@ -1420,6 +1443,7 @@ public class TestScript : MonoBehaviour {
     void upgradePieces(){
 		//upgrade light pieces
 		List<GameObject> tempLightPieces = new List<GameObject>();
+		piecesToUpgrade = new List<GameObject>();
 		tempLightPieces.AddRange(lightPieces);
 		foreach(GameObject piece in tempLightPieces){
 			if(piece.name.Contains("Pawn")){
@@ -1553,5 +1577,95 @@ public class TestScript : MonoBehaviour {
         }
         return peg;
     }
+
+	
+
+	int evaluateAIMove(GameObject[] move){
+		//return 1;
+
+		int value = 0;
+		for(int i = -1; i < 2; i+=2){
+			List<GameObject> set;
+			if(i == -1){
+				set = lightPieces;
+			} else {
+				set = darkPieces;
+			}
+
+			foreach(GameObject p in set){
+				if(p.name.Contains("Pawn")){
+					value += i*20;
+				} else if(p.name.Contains("Knight")){
+					value += i*45;
+				} else if(p.name.Contains("Rook") || p.name.Contains("Bishop")){
+					value += i*75;
+				} else if(p.name.Contains("Queen")){
+					value += i*95;
+				} else {
+					//king
+					value += i*100;
+				}
+			}
+		}
+
+		if(isStand(move[0])){
+			GameObject ogPeg = getPegUnderStand(move[0]);
+			GameObject level = move[0].transform.parent.gameObject;
+			simulateMovement(new GameObject[]{level, move[1]});
+			upgradePieces();
+			foreach(GameObject piece in piecesToUpgrade){
+				if(isLightPiece(piece)){
+					value += 20;
+					value -= 76;
+				} else {
+					value -= 20;
+					value += 76;
+				}
+			}
+			simulateMovement(new GameObject[]{level, ogPeg});
+		} else {
+			GameObject capPiece = getPieceOnTile(move[1]);
+			GameObject ogTile = getTileUnderPiece(move[0]);
+			simulateMovement(move);
+			
+			if(capPiece != null){
+				capPiece.transform.position = new Vector3(1000f, 1000f, 1000f);
+				lightPieces.Remove(capPiece);
+				if(capPiece.name.Contains("Pawn")){
+					value += 20;
+				} else if(capPiece.name.Contains("Knight")){
+					value += 45;
+				} else if(capPiece.name.Contains("Rook") || capPiece.name.Contains("Bishop")){
+					value += 75;
+				} else if(capPiece.name.Contains("Queen")){
+					value += 95;
+				} else {
+					//king - should never happen i think
+					value += 100;
+				}
+			}
+
+			upgradePieces();
+			foreach(GameObject piece in piecesToUpgrade){
+				if(isLightPiece(piece)){
+					value += 20;
+					value -= 76;
+				} else {
+					value -= 20;
+					value += 76;
+				}
+			}
+
+			simulateMovement(new GameObject[]{move[0], ogTile});
+			if(capPiece != null){
+				simulateMovement(new GameObject[]{capPiece, move[1]});
+				lightPieces.Add(capPiece);
+			}
+		}
+		piecesToUpgrade = new List<GameObject>();
+		foundAllUpgradePieces = false;
+		return value;
+
+	}
 
 }

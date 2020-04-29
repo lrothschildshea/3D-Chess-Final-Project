@@ -463,7 +463,7 @@ public class TestScript : MonoBehaviour {
                             }
                             if (selectedPiece.name.Contains("Rook"))
                             {
-                                stationaryKings.Remove(selectedPiece);
+                                stationaryRooks.Remove(selectedPiece);
                             }
                             selectedTile = clicked;
 							clicked.GetComponent<Renderer>().material.color = Color.yellow;
@@ -479,6 +479,8 @@ public class TestScript : MonoBehaviour {
                         }
                         else{
                             castleRook = getPieceOnTile(clicked);
+                            stationaryKings.Remove(selectedPiece);
+                            stationaryRooks.Remove(castleRook);
                             selectedTile = clicked;
                             clicked.GetComponent<Renderer>().material.color = Color.yellow;
                             moving = true;
@@ -588,8 +590,6 @@ public class TestScript : MonoBehaviour {
 				Vector3 dest = new Vector3(100000, 100000, 100000);
 
 				if(capturedPiece != null){
-                    Debug.Log("Capture");
-                    Debug.Log(capturedPiece.name);
                     movesWithOutPawnOrCapture = -1;
                     if (isLightPiece(capturedPiece)){
 						dest = new Vector3(lightCapturedPiecesLocations[lightCapturedCounter-1, 0], capturedY, lightCapturedPiecesLocations[lightCapturedCounter-1, 1]);
@@ -601,8 +601,6 @@ public class TestScript : MonoBehaviour {
 				}
 
                 if(castleRook != null){
-                    Debug.Log("Castle");
-                    Debug.Log(castleRook.name);
                     if (lightsTurn){
                         castleRook.transform.position = Vector3.Lerp(castleRook.transform.position, lightKingOGPos, Time.deltaTime * 3.5f);
                     }

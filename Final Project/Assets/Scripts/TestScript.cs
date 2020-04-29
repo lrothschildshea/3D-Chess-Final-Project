@@ -42,6 +42,14 @@ public class TestScript : MonoBehaviour {
 	private bool lightsTurn;
 
     private List<GameObject> stationaryPawns;
+    private List<GameObject> stationaryKings;
+    private List<GameObject> stationaryRooks;
+    private List<GameObject> stationarySubLevels;
+
+    private GameObject lightQueenOGTile;
+    private GameObject darkQueenOGTile;
+    private Vector3 lightKingOGPos;
+    private Vector3 darkKingOGPos;
 
 	private float timeSinceTextChange = 0f;
 	GameObject bottomPrompt;
@@ -97,6 +105,12 @@ public class TestScript : MonoBehaviour {
 
 	private MenuControls menuScript;
 
+    private bool darkFirstTurn;
+    private bool lightFirstTurn;
+
+    private GameObject castleRook;
+
+
 	// Use this for initialization
 	void Start () {
 		gameStarted = false;
@@ -110,6 +124,9 @@ public class TestScript : MonoBehaviour {
         stands = new List<GameObject>();
         availableMoves = new List<GameObject>();
         stationaryPawns = new List<GameObject>();
+        stationaryKings = new List<GameObject>();
+        stationaryRooks = new List<GameObject>();
+        stationarySubLevels = new List<GameObject>();
         levels = new List<GameObject>();
 		bottomPrompt = GameObject.Find("Bottom Prompt");
         lightTimer = 1800f;
@@ -134,12 +151,20 @@ public class TestScript : MonoBehaviour {
 		hasSetChangeStandY = false;
 		paused = false;
 		singlePlayer = false;
+        lightFirstTurn = true;
+        darkFirstTurn = true;
+        castleRook = null;
         //get lists of objects used throughout the game
         gameBoard = GameObject.Find("GameBoard");
         foreach(Transform group in gameBoard.transform){
             if (group.gameObject.name.Contains("Level"))
             {
                 levels.Add(group.gameObject);
+
+                if (group.gameObject.name.Contains(".5."))
+                {
+                    stationarySubLevels.Add(group.gameObject);
+                }
             }
             foreach(Transform piece in group){
                 GameObject gamePiece = piece.gameObject;
@@ -161,6 +186,14 @@ public class TestScript : MonoBehaviour {
                 if (gamePiece.name.Contains("Pawn"))
                 {
                     stationaryPawns.Add(gamePiece);
+                }
+                if (gamePiece.name.Contains("King"))
+                {
+                    stationaryKings.Add(gamePiece);
+                }
+                if (gamePiece.name.Contains("Rook"))
+                {
+                    stationaryRooks.Add(gamePiece);
                 }
             }
         }
@@ -205,6 +238,15 @@ public class TestScript : MonoBehaviour {
         darkTileColor = tiles[0].GetComponent<Renderer>().material.color;
 		standColor = stands[0].transform.GetChild(0).gameObject.GetComponent<Renderer>().material.color;
 		pegColor = pegs[0].GetComponent<Renderer>().material.color;
+
+        lightQueenOGTile = getTileUnderPiece(GameObject.Find("QueenLight"));
+        darkQueenOGTile = getTileUnderPiece(GameObject.Find("QueenDark"));
+
+        lightKingOGPos = getTileUnderPiece(GameObject.Find("KingLight")).transform.position;
+        darkKingOGPos = getTileUnderPiece(GameObject.Find("KingDark")).transform.position;
+
+        lightKingOGPos.y += 0.05f;
+        darkKingOGPos.y += 0.05f;
     }
 
     bool isDarkPiece(GameObject gamePiece){
@@ -241,6 +283,17 @@ public class TestScript : MonoBehaviour {
 		setBottomPrompt("");
 		resetForNextActionWithoutTogglingTurn();
         movesWithOutPawnOrCapture++;
+        if (lightsTurn){
+            if (lightFirstTurn){
+                lightFirstTurn = false;
+            }
+        }
+        else{
+            if (darkFirstTurn){
+                darkFirstTurn = false;
+            }
+        }
+
 		lightsTurn = !lightsTurn;
 
 		List<GameObject> friendlyPieces;
@@ -313,6 +366,7 @@ public class TestScript : MonoBehaviour {
 		finishedT1 = false;
 		finishedT2 = false;
 		finishedT3 = false;
+        castleRook = null;
 		piecesToUpgrade = new List<GameObject>();
 	}
 	
@@ -404,7 +458,14 @@ public class TestScript : MonoBehaviour {
 							{
 								stationaryPawns.Remove(selectedPiece);
 							}
-							selectedTile = clicked;
+                            if (selectedPiece.name.Contains("King")){
+                                stationaryKings.Remove(selectedPiece);
+                            }
+                            if (selectedPiece.name.Contains("Rook"))
+                            {
+                                stationaryKings.Remove(selectedPiece);
+                            }
+                            selectedTile = clicked;
 							clicked.GetComponent<Renderer>().material.color = Color.yellow;
 							moving = true;
 							if(available > 1){
@@ -415,7 +476,13 @@ public class TestScript : MonoBehaviour {
 									darkCapturedCounter++;
 								}
 							}
-						}
+                        }
+                        else{
+                            castleRook = getPieceOnTile(clicked);
+                            selectedTile = clicked;
+                            clicked.GetComponent<Renderer>().material.color = Color.yellow;
+                            moving = true;
+                        }
 
 					}
 
@@ -458,11 +525,6 @@ public class TestScript : MonoBehaviour {
 			}
 			if(!moving){
 				List<GameObject[]> moves = legalmoves;
-
-
-
-
-				
 				List<GameObject[]> bestMoves = new List<GameObject[]>();
 				int bestMovesValue = -2000;
 
@@ -483,6 +545,7 @@ public class TestScript : MonoBehaviour {
 				if(isStand(move[0])){
 					selectedPlatform = move[0].transform.parent.gameObject;
 					selectedPlatformLoc = move[1];
+                    stationarySubLevels.Remove(selectedPlatform);
 				} else {
 					selectedPiece = move[0];
 					selectedTile = move[1];
@@ -490,11 +553,24 @@ public class TestScript : MonoBehaviour {
 					if (selectedPiece.name.Contains("Pawn")){
 						stationaryPawns.Remove(selectedPiece);
 					}
+                    if (selectedPiece.name.Contains("King"))
+                    {
+                        stationaryKings.Remove(selectedPiece);
+                    }
+                    if (selectedPiece.name.Contains("Rook"))
+                    {
+                        stationaryRooks.Remove(selectedPiece);
+                    }
 
-					capturedPiece = getPieceOnTile(selectedTile);
-					if(capturedPiece != null){
+                    GameObject pieceOnDest = getPieceOnTile(selectedTile);
+
+					if(pieceOnDest != null && isLightPiece(pieceOnDest)){
+                        capturedPiece = pieceOnDest;
 						lightCapturedCounter++;
 					}
+                    else if (pieceOnDest != null && isDarkPiece(pieceOnDest)){
+                        castleRook = pieceOnDest;
+                    }
 				}
 			}
 		}
@@ -512,6 +588,8 @@ public class TestScript : MonoBehaviour {
 				Vector3 dest = new Vector3(100000, 100000, 100000);
 
 				if(capturedPiece != null){
+                    Debug.Log("Capture");
+                    Debug.Log(capturedPiece.name);
                     movesWithOutPawnOrCapture = -1;
                     if (isLightPiece(capturedPiece)){
 						dest = new Vector3(lightCapturedPiecesLocations[lightCapturedCounter-1, 0], capturedY, lightCapturedPiecesLocations[lightCapturedCounter-1, 1]);
@@ -522,11 +600,34 @@ public class TestScript : MonoBehaviour {
 					}
 				}
 
+                if(castleRook != null){
+                    Debug.Log("Castle");
+                    Debug.Log(castleRook.name);
+                    if (lightsTurn){
+                        castleRook.transform.position = Vector3.Lerp(castleRook.transform.position, lightKingOGPos, Time.deltaTime * 3.5f);
+                    }
+                    else
+                    {
+                        castleRook.transform.position = Vector3.Lerp(castleRook.transform.position, darkKingOGPos, Time.deltaTime * 3.5f);
+                    }
+                }
+
 				bool selectedClose = ((selectedPiece.transform.position - location).magnitude < .02);
 				bool noCapPiece = capturedPiece == null;
 				bool capPieceClose = capturedPiece != null && ((capturedPiece.transform.position - dest).magnitude < .02);
 
-				if(selectedClose && (noCapPiece || capPieceClose)){
+                bool noCastleRook = castleRook == null;
+                bool castleRookClose = false;
+                if (lightsTurn)
+                {
+                    castleRookClose = castleRook != null && ((castleRook.transform.position - lightKingOGPos).magnitude < .02);
+                }
+                else
+                {
+                    castleRookClose = castleRook != null && ((castleRook.transform.position - darkKingOGPos).magnitude < .02);
+                }
+
+                if (selectedClose && (noCapPiece || capPieceClose) && (noCastleRook || castleRookClose)){
 					selectedPiece.transform.position = location;
 					if(isLightPiece(selectedPiece)){
 						selectedPiece.GetComponent<Renderer>().material.color = lightTeamColor;
@@ -550,6 +651,17 @@ public class TestScript : MonoBehaviour {
 							darkPieces.Remove(capturedPiece);
 						}
 					}
+
+                    if(castleRook != null){
+                        if (lightsTurn)
+                        {
+                            castleRook.transform.position = lightKingOGPos;
+                        }
+                        else
+                        {
+                            castleRook.transform.position = darkKingOGPos;
+                        }
+                    }
 					upgrading = true;
 				}
 			}
@@ -629,6 +741,7 @@ public class TestScript : MonoBehaviour {
 
 				if((selectedPlatform.transform.position - location).magnitude < .02){
 					selectedPlatform.transform.position = location;
+                    stationarySubLevels.Remove(selectedPlatform);
 					selectedPlatform.transform.GetChild(4).transform.GetChild(0).gameObject.GetComponent<Renderer>().material.color = standColor;
 					selectedPlatform.transform.GetChild(4).transform.GetChild(1).gameObject.GetComponent<Renderer>().material.color = standColor;
 					selectedPlatformLoc.GetComponent<Renderer>().material.color = pegColor;
@@ -900,6 +1013,34 @@ public class TestScript : MonoBehaviour {
 			foreach(GameObject t in tiles){
                 if ((distance2D(t.transform.position, candidatePositions[i]) < .1) && (tileAvailable(t, king) > 0)){
                     moves.Add(t);
+                }
+            }
+        }
+
+        bool firstTurn = true;
+        GameObject kingSideRook = null;
+        GameObject queenSideRook = null;
+        if (lightsTurn){
+            firstTurn = lightFirstTurn;
+            kingSideRook = GameObject.Find("RookLight (1)");
+            queenSideRook = GameObject.Find("RookLight");
+
+        }
+        else{
+            firstTurn = darkFirstTurn;
+            kingSideRook = GameObject.Find("RookDark");
+            queenSideRook = GameObject.Find("RookDark (1)");
+        }
+
+        List<GameObject> rooks = new List<GameObject> { kingSideRook, queenSideRook };
+
+        GameObject kingLevel = getTileUnderPiece(king).transform.parent.gameObject;
+
+        foreach(GameObject r in rooks){
+            GameObject rookLevel = getTileUnderPiece(r).transform.parent.gameObject;
+            if (!firstTurn && stationaryKings.Contains(king) && stationaryRooks.Contains(r) && stationarySubLevels.Contains(kingLevel) && stationarySubLevels.Contains(rookLevel)){
+                if(pathClearForCastle(king, r)){
+                    moves.Add(getTileUnderPiece(r));
                 }
             }
         }
@@ -1316,7 +1457,6 @@ public class TestScript : MonoBehaviour {
     {
         List<GameObject> opponentMoveSet = new List<GameObject>();
         foreach(GameObject opponent in opposingPieces){
-            //NEED TO GET ALL LEGAL ACTIONS FOR THE OPPONENT
             opponentMoveSet.AddRange(getAvailableMoves(opponent));
         }
         if (opponentMoveSet.Contains(getTileUnderPiece(king))){
@@ -1344,18 +1484,25 @@ public class TestScript : MonoBehaviour {
 
         foreach(GameObject pos in moves)
         {
-			GameObject enemyOnPos = getPieceOnTile(pos);
-			//assumes no friendly in moves
-			if(enemyOnPos != null){
-				enemyOnPos.transform.position = new Vector3(1000f, 1000f, 1000f);
-			}
+            GameObject pieceOnPos = null;
+            int posStatus = tileAvailable(pos, piece);
+            if(posStatus != 1){
+                pieceOnPos = getPieceOnTile(pos);
+                if(posStatus == 0){
+                    simulateMovement(new GameObject[] { pieceOnPos, ogTile });
+                }
+                else{
+                    pieceOnPos.transform.position = new Vector3(1000f, 1000f, 1000f);
+                }
+            }
+
             simulateMovement(new GameObject[2] { piece, pos});
             if(check(myKing, opponentsPieces)){
                 finalMoves.Remove(pos);
             }
 
-			if(enemyOnPos != null){
-                simulateMovement(new GameObject[2] { enemyOnPos, pos});
+			if(pieceOnPos != null){
+                simulateMovement(new GameObject[2] { pieceOnPos, pos});
 			}
         }
         simulateMovement(new GameObject[2] { piece, ogTile});
@@ -1624,20 +1771,20 @@ public class TestScript : MonoBehaviour {
 			}
 			simulateMovement(new GameObject[]{level, ogPeg});
 		} else {
-			GameObject capPiece = getPieceOnTile(move[1]);
+			GameObject candidatePiece = getPieceOnTile(move[1]);
 			GameObject ogTile = getTileUnderPiece(move[0]);
 			simulateMovement(move);
 			
-			if(capPiece != null){
-				capPiece.transform.position = new Vector3(1000f, 1000f, 1000f);
-				lightPieces.Remove(capPiece);
-				if(capPiece.name.Contains("Pawn")){
+			if(candidatePiece != null && isLightPiece(candidatePiece)){
+				candidatePiece.transform.position = new Vector3(1000f, 1000f, 1000f);
+				lightPieces.Remove(candidatePiece);
+				if(candidatePiece.name.Contains("Pawn")){
 					value += 20;
-				} else if(capPiece.name.Contains("Knight")){
+				} else if(candidatePiece.name.Contains("Knight")){
 					value += 45;
-				} else if(capPiece.name.Contains("Rook") || capPiece.name.Contains("Bishop")){
+				} else if(candidatePiece.name.Contains("Rook") || candidatePiece.name.Contains("Bishop")){
 					value += 75;
-				} else if(capPiece.name.Contains("Queen")){
+				} else if(candidatePiece.name.Contains("Queen")){
 					value += 95;
 				} else {
 					//king - should never happen i think
@@ -1657,9 +1804,9 @@ public class TestScript : MonoBehaviour {
 			}
 
 			simulateMovement(new GameObject[]{move[0], ogTile});
-			if(capPiece != null){
-				simulateMovement(new GameObject[]{capPiece, move[1]});
-				lightPieces.Add(capPiece);
+			if(candidatePiece != null && candidatePiece.name.Contains("Light")){
+				simulateMovement(new GameObject[]{candidatePiece, move[1]});
+				lightPieces.Add(candidatePiece);
 			}
 		}
 		piecesToUpgrade = new List<GameObject>();
@@ -1667,5 +1814,25 @@ public class TestScript : MonoBehaviour {
 		return value;
 
 	}
+
+    bool pathClearForCastle(GameObject king, GameObject rook) {
+        GameObject kingTile = getTileUnderPiece(king);
+        GameObject rookTile = getTileUnderPiece(rook);
+        GameObject queenTile = null;
+
+        if (lightsTurn){
+            queenTile = lightQueenOGTile;
+        }
+        else{
+            queenTile = darkQueenOGTile;
+        }
+
+        if(kingTile.transform.parent == rookTile.transform.parent){
+            return true;
+        }
+        else {
+            return getPieceOnTile(queenTile) == null;
+        }
+    }
 
 }

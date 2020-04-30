@@ -109,6 +109,7 @@ public class TestScript : MonoBehaviour {
     private bool lightFirstTurn;
 
     private GameObject castleRook;
+	private bool showedGameOverScreen = false;
 
 
 	// Use this for initialization
@@ -375,8 +376,9 @@ public class TestScript : MonoBehaviour {
 		if(!gameStarted){
 			return;
 		}
-		if(gameOver){
+		if(gameOver && !showedGameOverScreen){
 			menuScript.enableGameOverScreen();
+			showedGameOverScreen = true;
 			return;
 		}
 

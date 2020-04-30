@@ -15,6 +15,8 @@ public class MenuControls : MonoBehaviour {
     private GameObject forfeitConfirmationScreen;
     private GameObject drawConfirmationScreen;
 
+	private GameObject statsScreen;
+
 	void Start () {
 		welcomeScreen = GameObject.Find("WelcomeScreen");
 		instructionsScreen = GameObject.Find("InstructionsScreen");
@@ -24,12 +26,13 @@ public class MenuControls : MonoBehaviour {
 		pauseScreen = GameObject.Find("PauseScreen");
         forfeitConfirmationScreen = GameObject.Find("ForfeitConfirmationScreen");
         drawConfirmationScreen = GameObject.Find("DrawConfirmationScreen");
+		statsScreen = GameObject.Find("StatsScreen");
 		disableAllExcept(welcomeScreen);
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		if(Input.GetKeyDown(KeyCode.Escape) && !welcomeScreen.activeSelf && !instructionsScreen.activeSelf && !gameOverScreen.activeSelf && !upgradeScreen.activeSelf && !pauseScreen.activeSelf && !forfeitConfirmationScreen.activeSelf){
+		if(Input.GetKeyDown(KeyCode.Escape) && !welcomeScreen.activeSelf && !instructionsScreen.activeSelf && !gameOverScreen.activeSelf && !upgradeScreen.activeSelf && !pauseScreen.activeSelf && !forfeitConfirmationScreen.activeSelf && !statsScreen.activeSelf){
 			enablePauseScreen();
 		} else if(Input.GetKeyDown(KeyCode.Escape) && pauseScreen.activeSelf){
 			enableHUD();
@@ -58,9 +61,11 @@ public class MenuControls : MonoBehaviour {
         if (exception != forfeitConfirmationScreen){
             disableForfeitConfirmationScreen();
         }
-        if(exception != drawConfirmationScreen)
-        {
+        if(exception != drawConfirmationScreen){
             disableDrawConfirmationScreen();
+        }
+		if(exception != statsScreen){
+            disableStatsScreen();
         }
 	}
 
@@ -157,6 +162,15 @@ public class MenuControls : MonoBehaviour {
     public void disableDrawConfirmationScreen(){
         drawConfirmationScreen.SetActive(false);
         GameObject.Find("GameBoard").GetComponent<TestScript>().paused = false;
+    }
+
+	public void enableStatsScreen(){
+        statsScreen.SetActive(true);
+        disableAllExcept(statsScreen);
+    }
+
+    public void disableStatsScreen(){
+        statsScreen.SetActive(false);
     }
 
     public void returnToMainMenu(){

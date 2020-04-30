@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class MenuControls : MonoBehaviour {
 
@@ -12,6 +13,7 @@ public class MenuControls : MonoBehaviour {
 	private GameObject gameOverScreen;
 	private GameObject pauseScreen;
     private GameObject forfeitConfirmationScreen;
+    private GameObject drawConfirmationScreen;
 
 	void Start () {
 		welcomeScreen = GameObject.Find("WelcomeScreen");
@@ -21,6 +23,7 @@ public class MenuControls : MonoBehaviour {
 		gameOverScreen = GameObject.Find("GameOverScreen");
 		pauseScreen = GameObject.Find("PauseScreen");
         forfeitConfirmationScreen = GameObject.Find("ForfeitConfirmationScreen");
+        drawConfirmationScreen = GameObject.Find("DrawConfirmationScreen");
 		disableAllExcept(welcomeScreen);
 	}
 	
@@ -53,14 +56,22 @@ public class MenuControls : MonoBehaviour {
 			disablePauseScreen();
 		}
         if (exception != forfeitConfirmationScreen){
-            disableForfeirConfirmationScreen();
+            disableForfeitConfirmationScreen();
+        }
+        if(exception != drawConfirmationScreen)
+        {
+            disableDrawConfirmationScreen();
         }
 	}
 
 	public void startGame(){
 		enableHUD();
 		GameObject.Find("GameBoard").GetComponent<TestScript>().gameStarted = true;
-	}
+        if (GameObject.Find("GameBoard").GetComponent<TestScript>().singlePlayer){
+            GameObject.Find("DrawButton").SetActive(false);
+        }
+
+    }
 
 	public void enableWelcomeScreen(){
 		welcomeScreen.SetActive(true);
@@ -132,8 +143,23 @@ public class MenuControls : MonoBehaviour {
         GameObject.Find("GameBoard").GetComponent<TestScript>().paused = true;
     }
 
-    public void disableForfeirConfirmationScreen(){
+    public void disableForfeitConfirmationScreen(){
         forfeitConfirmationScreen.SetActive(false);
         GameObject.Find("GameBoard").GetComponent<TestScript>().paused = false;
+    }
+
+    public void enableDrawConfirmationScreen(){
+        drawConfirmationScreen.SetActive(true);
+        disableAllExcept(drawConfirmationScreen);
+        GameObject.Find("GameBoard").GetComponent<TestScript>().paused = true;
+    }
+
+    public void disableDrawConfirmationScreen(){
+        drawConfirmationScreen.SetActive(false);
+        GameObject.Find("GameBoard").GetComponent<TestScript>().paused = false;
+    }
+
+    public void returnToMainMenu(){
+        SceneManager.LoadScene("Board");
     }
 }

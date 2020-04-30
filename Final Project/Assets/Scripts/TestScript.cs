@@ -54,7 +54,7 @@ public class TestScript : MonoBehaviour {
 	private float timeSinceTextChange = 0f;
 	GameObject bottomPrompt;
 
-	bool gameOver;
+	internal bool gameOver;
 	public bool gameStarted;
 
 	private bool upgrading;
@@ -404,6 +404,10 @@ public class TestScript : MonoBehaviour {
                 setBottomPrompt("You have used more than the alloted time for your turn! Game over.");
                 gameOver = true;
             }
+        }
+
+        if (paused){
+            return;
         }
 
 		updateBottomPromt();

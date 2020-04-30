@@ -11,6 +11,7 @@ public class MenuControls : MonoBehaviour {
 	public GameObject upgradeScreen;
 	private GameObject gameOverScreen;
 	private GameObject pauseScreen;
+    private GameObject forfeitConfirmationScreen;
 
 	void Start () {
 		welcomeScreen = GameObject.Find("WelcomeScreen");
@@ -19,12 +20,13 @@ public class MenuControls : MonoBehaviour {
 		upgradeScreen = GameObject.Find("UpgradeScreen");
 		gameOverScreen = GameObject.Find("GameOverScreen");
 		pauseScreen = GameObject.Find("PauseScreen");
+        forfeitConfirmationScreen = GameObject.Find("ForfeitConfirmationScreen");
 		disableAllExcept(welcomeScreen);
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		if(Input.GetKeyDown(KeyCode.Escape) && !welcomeScreen.activeSelf && !instructionsScreen.activeSelf && !gameOverScreen.activeSelf && !upgradeScreen.activeSelf && !pauseScreen.activeSelf){
+		if(Input.GetKeyDown(KeyCode.Escape) && !welcomeScreen.activeSelf && !instructionsScreen.activeSelf && !gameOverScreen.activeSelf && !upgradeScreen.activeSelf && !pauseScreen.activeSelf && !forfeitConfirmationScreen.activeSelf){
 			enablePauseScreen();
 		} else if(Input.GetKeyDown(KeyCode.Escape) && pauseScreen.activeSelf){
 			enableHUD();
@@ -50,6 +52,9 @@ public class MenuControls : MonoBehaviour {
 		if(exception != pauseScreen){
 			disablePauseScreen();
 		}
+        if (exception != forfeitConfirmationScreen){
+            disableForfeirConfirmationScreen();
+        }
 	}
 
 	public void startGame(){
@@ -92,7 +97,8 @@ public class MenuControls : MonoBehaviour {
 
 	public void enableGameOverScreen(){
 		gameOverScreen.SetActive(true);
-		disableAllExcept(gameOverScreen);
+        GameObject.Find("GameBoard").GetComponent<TestScript>().gameOver = true;
+        disableAllExcept(gameOverScreen);
 	}
 
 	public void disableGameOverScreen(){
@@ -118,5 +124,16 @@ public class MenuControls : MonoBehaviour {
     public void twoPlayerStart(){
         GameObject.Find("GameBoard").GetComponent<TestScript>().singlePlayer = false;
         startGame();
+    }
+
+    public void enableForfeitConfirmationScreen(){
+        forfeitConfirmationScreen.SetActive(true);
+        disableAllExcept(forfeitConfirmationScreen);
+        GameObject.Find("GameBoard").GetComponent<TestScript>().paused = true;
+    }
+
+    public void disableForfeirConfirmationScreen(){
+        forfeitConfirmationScreen.SetActive(false);
+        GameObject.Find("GameBoard").GetComponent<TestScript>().paused = false;
     }
 }

@@ -780,7 +780,10 @@ public class TestScript : MonoBehaviour {
 						newPiece = Instantiate(darkQueenPrefab, piece.transform.position, Quaternion.identity);
 					}
 					newPiece.transform.localScale = piece.transform.localScale;
-					darkPieces.Add(newPiece);
+
+                    newPiece.transform.eulerAngles = new Vector3(newPiece.transform.eulerAngles.x, newPiece.transform.eulerAngles.y + 180, newPiece.transform.eulerAngles.z);
+
+                    darkPieces.Add(newPiece);
 					darkPieces.Remove(piece);
 					newPiece.transform.parent = GameObject.Find("Black Pieces").transform;
 					piecesToUpgrade.Remove(piece);
@@ -827,7 +830,8 @@ public class TestScript : MonoBehaviour {
 						darkPieces.Add(newPiece);
 						darkPieces.Remove(piece);
 						newPiece.transform.parent = GameObject.Find("Black Pieces").transform;
-					}
+                        newPiece.transform.eulerAngles = new Vector3(newPiece.transform.eulerAngles.x, newPiece.transform.eulerAngles.y + 180, newPiece.transform.eulerAngles.z);
+                    }
 
 					piecesToUpgrade.Remove(piece);
 					Destroy(piece);

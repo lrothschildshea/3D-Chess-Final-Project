@@ -16,6 +16,7 @@ public class MenuControls : MonoBehaviour {
     private GameObject drawConfirmationScreen;
 
 	private GameObject statsScreen;
+	private GameObject controlsScreen;
 
 	private TestScript mainScript;
 
@@ -29,13 +30,14 @@ public class MenuControls : MonoBehaviour {
         forfeitConfirmationScreen = GameObject.Find("ForfeitConfirmationScreen");
         drawConfirmationScreen = GameObject.Find("DrawConfirmationScreen");
 		statsScreen = GameObject.Find("StatsScreen");
+		controlsScreen = GameObject.Find("ControlsScreen");
 		mainScript = GameObject.Find("GameBoard").GetComponent<TestScript>();
 		disableAllExcept(welcomeScreen);
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		if(Input.GetKeyDown(KeyCode.Escape) && !welcomeScreen.activeSelf && !instructionsScreen.activeSelf && !gameOverScreen.activeSelf && !upgradeScreen.activeSelf && !pauseScreen.activeSelf && !forfeitConfirmationScreen.activeSelf && !statsScreen.activeSelf){
+		if(Input.GetKeyDown(KeyCode.Escape) && !welcomeScreen.activeSelf && !instructionsScreen.activeSelf && !gameOverScreen.activeSelf && !upgradeScreen.activeSelf && !pauseScreen.activeSelf && !forfeitConfirmationScreen.activeSelf && !statsScreen.activeSelf && !controlsScreen.activeSelf){
 			enablePauseScreen();
 		} else if(Input.GetKeyDown(KeyCode.Escape) && pauseScreen.activeSelf){
 			enableHUD();
@@ -69,6 +71,9 @@ public class MenuControls : MonoBehaviour {
         }
 		if(exception != statsScreen){
             disableStatsScreen();
+        }
+		if(exception != controlsScreen){
+            disableControlsScreen();
         }
 	}
 
@@ -177,6 +182,15 @@ public class MenuControls : MonoBehaviour {
         statsScreen.SetActive(false);
     }
 
+	public void enableControlsScreen(){
+		controlsScreen.SetActive(true);
+        disableAllExcept(controlsScreen);
+	}
+
+	public void disableControlsScreen(){
+		controlsScreen.SetActive(false);
+	}
+
     public void returnToMainMenu(){
         SceneManager.LoadScene("Board");
     }
@@ -191,4 +205,8 @@ public class MenuControls : MonoBehaviour {
 		mainScript.draw = true;
 		enableGameOverScreen();
 	}
+
+	public void quitGame() {
+    	 Application.Quit();
+ 	}
 }

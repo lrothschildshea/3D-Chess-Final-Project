@@ -7,8 +7,7 @@ using System.IO;
 
 public class StatsLogic : MonoBehaviour {
 
-	private bool written;
-	private bool read;
+	internal bool read;
 
 	public Text totalGamesPlayed;
 	public Text lightTeamWins;
@@ -24,7 +23,6 @@ public class StatsLogic : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		written = false;
 		read = false;
 	}
 	
@@ -49,27 +47,6 @@ public class StatsLogic : MonoBehaviour {
 				}
 			}
 			read = true;
-		}
-
-		if(read && !written && GameObject.Find("GameBoard").GetComponent<TestScript>().gameOver){
-			//need to make sure the texts have been updated with the correcct values at this point
-
-			String data = "";
-			data += totalGamesPlayed.text + ",";
-			data += lightTeamWins.text + ",";
-			data += darkTeamWins.text + ",";
-			data += lightForfeits.text + ",";
-			data += darkForfeits.text + ",";
-			data += draws.text + ",";
-			data += singlePlayerGames.text + ",";
-			data += twoPlayerGames.text + ",";
-			data += aiWins.text + ",";
-			data += aiLosses.text;
-
-			var csv = new System.Text.StringBuilder();
-			csv.AppendLine(data);
-			System.IO.File.WriteAllText("stats.csv", csv.ToString()); 
-			written = true;
 		}
 	}
 }

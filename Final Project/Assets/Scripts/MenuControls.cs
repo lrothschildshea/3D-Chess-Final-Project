@@ -17,6 +17,8 @@ public class MenuControls : MonoBehaviour {
 
 	private GameObject statsScreen;
 
+	private TestScript mainScript;
+
 	void Start () {
 		welcomeScreen = GameObject.Find("WelcomeScreen");
 		instructionsScreen = GameObject.Find("InstructionsScreen");
@@ -27,6 +29,7 @@ public class MenuControls : MonoBehaviour {
         forfeitConfirmationScreen = GameObject.Find("ForfeitConfirmationScreen");
         drawConfirmationScreen = GameObject.Find("DrawConfirmationScreen");
 		statsScreen = GameObject.Find("StatsScreen");
+		mainScript = GameObject.Find("GameBoard").GetComponent<TestScript>();
 		disableAllExcept(welcomeScreen);
 	}
 	
@@ -71,8 +74,8 @@ public class MenuControls : MonoBehaviour {
 
 	public void startGame(){
 		enableHUD();
-		GameObject.Find("GameBoard").GetComponent<TestScript>().gameStarted = true;
-        if (GameObject.Find("GameBoard").GetComponent<TestScript>().singlePlayer){
+		mainScript.gameStarted = true;
+        if (mainScript.singlePlayer){
             GameObject.Find("DrawButton").SetActive(false);
         }
 
@@ -113,7 +116,7 @@ public class MenuControls : MonoBehaviour {
 
 	public void enableGameOverScreen(){
 		gameOverScreen.SetActive(true);
-        GameObject.Find("GameBoard").GetComponent<TestScript>().gameOver = true;
+        mainScript.gameOver = true;
         disableAllExcept(gameOverScreen);
 	}
 
@@ -124,48 +127,49 @@ public class MenuControls : MonoBehaviour {
 	public void enablePauseScreen(){
 		pauseScreen.SetActive(true);
 		disableAllExcept(pauseScreen);
-		GameObject.Find("GameBoard").GetComponent<TestScript>().paused = true;
+		mainScript.paused = true;
 	}
 
 	public void disablePauseScreen(){
 		pauseScreen.SetActive(false);
-		GameObject.Find("GameBoard").GetComponent<TestScript>().paused = false;
+		mainScript.paused = false;
 	}
 
     public void singePlayerStart(){
-        GameObject.Find("GameBoard").GetComponent<TestScript>().singlePlayer = true;
+        mainScript.singlePlayer = true;
         startGame();
     }
     
     public void twoPlayerStart(){
-        GameObject.Find("GameBoard").GetComponent<TestScript>().singlePlayer = false;
+        mainScript.singlePlayer = false;
         startGame();
     }
 
     public void enableForfeitConfirmationScreen(){
         forfeitConfirmationScreen.SetActive(true);
         disableAllExcept(forfeitConfirmationScreen);
-        GameObject.Find("GameBoard").GetComponent<TestScript>().paused = true;
+        mainScript.paused = true;
     }
 
     public void disableForfeitConfirmationScreen(){
         forfeitConfirmationScreen.SetActive(false);
-        GameObject.Find("GameBoard").GetComponent<TestScript>().paused = false;
+        mainScript.paused = false;
     }
 
     public void enableDrawConfirmationScreen(){
         drawConfirmationScreen.SetActive(true);
         disableAllExcept(drawConfirmationScreen);
-        GameObject.Find("GameBoard").GetComponent<TestScript>().paused = true;
+        mainScript.paused = true;
     }
 
     public void disableDrawConfirmationScreen(){
         drawConfirmationScreen.SetActive(false);
-        GameObject.Find("GameBoard").GetComponent<TestScript>().paused = false;
+        mainScript.paused = false;
     }
 
 	public void enableStatsScreen(){
         statsScreen.SetActive(true);
+		GameObject.Find("StatsScreen").GetComponent<StatsLogic>().read = false;
         disableAllExcept(statsScreen);
     }
 
@@ -176,4 +180,15 @@ public class MenuControls : MonoBehaviour {
     public void returnToMainMenu(){
         SceneManager.LoadScene("Board");
     }
+
+	public void acceptForfeit(){
+		mainScript.forfeit = true;
+		mainScript.lightWon = !mainScript.lightsTurn;
+		enableGameOverScreen();
+	}
+
+	public void acceptDraw(){
+		mainScript.draw = true;
+		enableGameOverScreen();
+	}
 }

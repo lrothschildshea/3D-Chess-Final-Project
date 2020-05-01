@@ -39,7 +39,7 @@ public class TestScript : MonoBehaviour {
 
 	private GameObject capturedPiece;
 
-	private bool lightsTurn;
+	internal bool lightsTurn;
 
     private List<GameObject> stationaryPawns;
     private List<GameObject> stationaryKings;
@@ -99,7 +99,7 @@ public class TestScript : MonoBehaviour {
 	private bool hasSetChangeStandY;
 
 	public bool paused;
-	public bool singlePlayer;
+	internal bool singlePlayer;
 	private List<GameObject[]> legalmoves;
 
 
@@ -110,6 +110,10 @@ public class TestScript : MonoBehaviour {
 
     private GameObject castleRook;
 	private bool showedGameOverScreen = false;
+
+	internal bool lightWon;
+	internal bool draw;
+	internal bool forfeit;
 
 
 	// Use this for initialization
@@ -155,6 +159,9 @@ public class TestScript : MonoBehaviour {
         lightFirstTurn = true;
         darkFirstTurn = true;
         castleRook = null;
+		lightWon = false;
+		draw = false;
+		forfeit = false;
         //get lists of objects used throughout the game
         gameBoard = GameObject.Find("GameBoard");
         foreach(Transform group in gameBoard.transform){
@@ -314,6 +321,7 @@ public class TestScript : MonoBehaviour {
         if (movesWithOutPawnOrCapture > 50){
             setBottomPrompt("The last 50 consecutive moves have taken place without the movement of any pawn and without the capture of any piece! Game over.");
             gameOver = true;
+			draw  = true;
         }
 
         bool legalMovePresent = false;
@@ -326,11 +334,12 @@ public class TestScript : MonoBehaviour {
         if (!legalMovePresent && checkState){
             setBottomPrompt("You are in checkmate! Game over.");
             gameOver = true;
-            
+			lightWon = !lightsTurn;
         }
         else if (!legalMovePresent && !checkState){
             setBottomPrompt("You have enetered a stalemate! Game over.");
             gameOver = true;
+			draw = true;
         }
         else if(legalMovePresent && checkState){
             setBottomPrompt("You are in check!");
@@ -393,6 +402,7 @@ public class TestScript : MonoBehaviour {
                 lightTimer = 0.0f;
                 setBottomPrompt("You have used more than the alloted time for your turn! Game over.");
                 gameOver = true;
+				lightWon = !lightsTurn;
             }
         }
         else if(!paused){
@@ -405,6 +415,7 @@ public class TestScript : MonoBehaviour {
                 darkTimer = 0.0f;
                 setBottomPrompt("You have used more than the alloted time for your turn! Game over.");
                 gameOver = true;
+				lightWon = !lightsTurn;
             }
         }
 

@@ -55,10 +55,10 @@ public class TestScript : MonoBehaviour {
 	GameObject bottomPrompt;
 
 	internal bool gameOver;
-	public bool gameStarted;
+	internal bool gameStarted;
 
 	private bool upgrading;
-	public String upgradeSelection;
+	internal String upgradeSelection;
 	private List<GameObject> lightUpgradeTiles;
 	private List<GameObject> darkUpgradeTiles;
 
@@ -98,7 +98,7 @@ public class TestScript : MonoBehaviour {
 	private bool changeStandY;
 	private bool hasSetChangeStandY;
 
-	public bool paused;
+	internal bool paused;
 	internal bool singlePlayer;
 	private List<GameObject[]> legalmoves;
 
@@ -114,6 +114,9 @@ public class TestScript : MonoBehaviour {
 	internal bool lightWon;
 	internal bool draw;
 	internal bool forfeit;
+
+	public Material yellowMaterial;
+	public Material blueMaterial;
 
 
 	// Use this for initialization
@@ -565,19 +568,23 @@ public class TestScript : MonoBehaviour {
 					selectedPlatform = move[0].transform.parent.gameObject;
 					selectedPlatformLoc = move[1];
                     stationarySubLevels.Remove(selectedPlatform);
+					selectedPlatform.transform.GetChild(4).transform.GetChild(0).gameObject.GetComponent<Renderer>().material.color = Color.yellow;
+					selectedPlatform.transform.GetChild(4).transform.GetChild(1).gameObject.GetComponent<Renderer>().material.color = Color.yellow;
+					selectedPlatformLoc.GetComponent<Renderer>().material.color = Color.yellow;
 				} else {
 					selectedPiece = move[0];
 					selectedTile = move[1];
 
+					selectedPiece.GetComponent<Renderer>().material.color = Color.yellow;
+					selectedTile.GetComponent<Renderer>().material.color = Color.yellow;
+
 					if (selectedPiece.name.Contains("Pawn")){
 						stationaryPawns.Remove(selectedPiece);
 					}
-                    if (selectedPiece.name.Contains("King"))
-                    {
+                    if (selectedPiece.name.Contains("King")){
                         stationaryKings.Remove(selectedPiece);
                     }
-                    if (selectedPiece.name.Contains("Rook"))
-                    {
+                    if (selectedPiece.name.Contains("Rook")){
                         stationaryRooks.Remove(selectedPiece);
                     }
 
@@ -802,6 +809,7 @@ public class TestScript : MonoBehaviour {
 
                     darkPieces.Add(newPiece);
 					darkPieces.Remove(piece);
+					newPiece.GetComponent<Renderer>().material = blueMaterial;
 					newPiece.transform.parent = GameObject.Find("Black Pieces").transform;
 					piecesToUpgrade.Remove(piece);
 					Destroy(piece);
@@ -843,11 +851,13 @@ public class TestScript : MonoBehaviour {
 						lightPieces.Add(newPiece);
 						lightPieces.Remove(piece);
 						newPiece.transform.parent = GameObject.Find("White Pieces").transform;
+						newPiece.GetComponent<Renderer>().material = yellowMaterial;
 					} else {
 						darkPieces.Add(newPiece);
 						darkPieces.Remove(piece);
 						newPiece.transform.parent = GameObject.Find("Black Pieces").transform;
                         newPiece.transform.eulerAngles = new Vector3(newPiece.transform.eulerAngles.x, newPiece.transform.eulerAngles.y + 180, newPiece.transform.eulerAngles.z);
+						newPiece.GetComponent<Renderer>().material = blueMaterial;
                     }
 
 					piecesToUpgrade.Remove(piece);
@@ -1056,12 +1066,14 @@ public class TestScript : MonoBehaviour {
         GameObject kingLevel = getTileUnderPiece(king).transform.parent.gameObject;
 
         foreach(GameObject r in rooks){
-            GameObject rookLevel = getTileUnderPiece(r).transform.parent.gameObject;
-            if (!firstTurn && stationaryKings.Contains(king) && stationaryRooks.Contains(r) && stationarySubLevels.Contains(kingLevel) && stationarySubLevels.Contains(rookLevel)){
-                if(pathClearForCastle(king, r)){
-                    moves.Add(getTileUnderPiece(r));
-                }
-            }
+			if(isLightPiece(r) || isDarkPiece(r)){
+				GameObject rookLevel = getTileUnderPiece(r).transform.parent.gameObject;
+				if (!firstTurn && stationaryKings.Contains(king) && stationaryRooks.Contains(r) && stationarySubLevels.Contains(kingLevel) && stationarySubLevels.Contains(rookLevel)){
+					if(pathClearForCastle(king, r)){
+						moves.Add(getTileUnderPiece(r));
+					}
+				}
+			}
         }
 
 		return moves;

@@ -20,7 +20,7 @@ public class MenuControls : MonoBehaviour {
 	private GameObject statsScreen;
 	private GameObject controlsScreen;
 
-	private TestScript mainScript;
+	private GameLogic mainScript;
 
 	public Text instructionsText;
 
@@ -42,7 +42,7 @@ public class MenuControls : MonoBehaviour {
         drawConfirmationScreen = GameObject.Find("DrawConfirmationScreen");
 		statsScreen = GameObject.Find("StatsScreen");
 		controlsScreen = GameObject.Find("ControlsScreen");
-		mainScript = GameObject.Find("GameBoard").GetComponent<TestScript>();
+		mainScript = GameObject.Find("GameBoard").GetComponent<GameLogic>();
 
 		nextButton = GameObject.Find("NextButton");
 		prevButton = GameObject.Find("PrevButton");

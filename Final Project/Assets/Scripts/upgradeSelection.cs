@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class upgradeSelection : MonoBehaviour {
 
-	private TestScript boardScript;
+	private GameLogic mainScript;
 	private MenuControls menuScript;
 
 	// Use this for initialization
 	void Start () {
-		boardScript = GameObject.Find("GameBoard").GetComponent<TestScript>();
+		mainScript = GameObject.Find("GameBoard").GetComponent<GameLogic>();
 		menuScript = GameObject.Find("Menus").GetComponent<MenuControls>();
 	}
 	
@@ -23,7 +23,7 @@ public class upgradeSelection : MonoBehaviour {
 				if(Physics.Raycast(ray, out hit, 100)){
 					GameObject clicked = hit.transform.gameObject;
 					if(clicked == gameObject){
-						boardScript.upgradeSelection = gameObject.name;
+						mainScript.upgradeSelection = gameObject.name;
 						menuScript.enableHUD();
 					}
 				}

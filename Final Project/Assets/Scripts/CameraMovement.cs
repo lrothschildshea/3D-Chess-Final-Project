@@ -14,29 +14,32 @@ public class CameraMovement : MonoBehaviour {
 
 	private int count = 0;
 
+	private GameLogic mainScript;
+
 	private GameObject mainCamera;
 
 	// Use this for initialization
 	void Start () {
 		mainCamera = GameObject.Find("Main Camera");
 		mainCamera.transform.LookAt(transform);
+		mainScript = GameObject.Find("GameBoard").GetComponent<GameLogic>();
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		if(!GameObject.Find("GameBoard").GetComponent<TestScript>().gameStarted){
+		if(!mainScript.gameStarted){
 			return;
 		}
 
-		if(GameObject.Find("GameBoard").GetComponent<TestScript>().paused){
+		if(mainScript.paused){
 			return;
 		}
 
-		if(GameObject.Find("GameBoard").GetComponent<TestScript>().lockCamera){
+		if(mainScript.lockCamera){
 			count++;
 			if(count > 1){
 				count = 0;
-				GameObject.Find("GameBoard").GetComponent<TestScript>().lockCamera = false;
+				mainScript.lockCamera = false;
 			}
 			return;
 		}

@@ -10,7 +10,7 @@ public class writeStatsData : MonoBehaviour {
 	private bool written;
 	private bool read;
 	private int[] dataArr;
-	private TestScript mainScript;
+	private GameLogic mainScript;
 
 	// Use this for initialization
 	void Start () {
@@ -20,7 +20,7 @@ public class writeStatsData : MonoBehaviour {
 		for(int i = 0; i < dataArr.Length; i++){
 			dataArr[i] = 0;
 		}
-		mainScript = GameObject.Find("GameBoard").GetComponent<TestScript>();
+		mainScript = GameObject.Find("GameBoard").GetComponent<GameLogic>();
 	}
 	
 	// Update is called once per frame
@@ -40,7 +40,7 @@ public class writeStatsData : MonoBehaviour {
 			read = true;
 		}
 
-		if(read && !written && GameObject.Find("GameBoard").GetComponent<TestScript>().gameOver){
+		if(read && !written && GameObject.Find("GameBoard").GetComponent<GameLogic>().gameOver){
 
 			//total games
 			dataArr[0] += 1;

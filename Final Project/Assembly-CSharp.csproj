@@ -53,9 +53,9 @@
   <ItemGroup>
      <Compile Include="Assets\Free Low Poly Chess Set\Example\Scripts\CameraRotate.cs" />
      <Compile Include="Assets\Scripts\CameraMovement.cs" />
+     <Compile Include="Assets\Scripts\GameLogic.cs" />
      <Compile Include="Assets\Scripts\MenuControls.cs" />
      <Compile Include="Assets\Scripts\StatsLogic.cs" />
-     <Compile Include="Assets\Scripts\TestScript.cs" />
      <Compile Include="Assets\Scripts\upgradeSelection.cs" />
      <Compile Include="Assets\Scripts\writeStatsData.cs" />
      <Compile Include="Assets\SpaceSkies Free\Demo\Scripts\LookCamera.cs" />

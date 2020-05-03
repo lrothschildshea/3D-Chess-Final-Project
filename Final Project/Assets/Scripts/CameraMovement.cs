@@ -12,6 +12,8 @@ public class CameraMovement : MonoBehaviour {
 	private float minCameraHeight = 12f;
 	private float maxCameraHeight = 30f;
 
+	private int count = 0;
+
 	private GameObject mainCamera;
 
 	// Use this for initialization
@@ -27,6 +29,15 @@ public class CameraMovement : MonoBehaviour {
 		}
 
 		if(GameObject.Find("GameBoard").GetComponent<TestScript>().paused){
+			return;
+		}
+
+		if(GameObject.Find("GameBoard").GetComponent<TestScript>().lockCamera){
+			count++;
+			if(count > 1){
+				count = 0;
+				GameObject.Find("GameBoard").GetComponent<TestScript>().lockCamera = false;
+			}
 			return;
 		}
 

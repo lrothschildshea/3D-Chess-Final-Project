@@ -116,6 +116,8 @@ public class TestScript : MonoBehaviour {
 	internal bool forfeit;
 	private float aiTimePassed;
 
+	internal bool lockCamera;
+
 	public Material yellowMaterial;
 	public Material blueMaterial;
 
@@ -167,6 +169,7 @@ public class TestScript : MonoBehaviour {
 		draw = false;
 		forfeit = false;
 		aiTimePassed = 0f;
+		lockCamera = false;
         //get lists of objects used throughout the game
         gameBoard = GameObject.Find("GameBoard");
         foreach(Transform group in gameBoard.transform){
@@ -295,6 +298,7 @@ public class TestScript : MonoBehaviour {
 	void resetForNextAction(){
 		setBottomPrompt("");
 		resetForNextActionWithoutTogglingTurn();
+		lockCamera = true;
         movesWithOutPawnOrCapture++;
         if (lightsTurn){
             if (lightFirstTurn){

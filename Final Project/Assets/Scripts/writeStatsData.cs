@@ -11,6 +11,7 @@ public class writeStatsData : MonoBehaviour {
 	private bool read;
 	private int[] dataArr;
 	private GameLogic mainScript;
+	public Text gameOverText;
 
 	// Use this for initialization
 	void Start () {
@@ -48,26 +49,36 @@ public class writeStatsData : MonoBehaviour {
 			//lightTeamWins
 			if(mainScript.lightWon && !mainScript.draw){
 				dataArr[1] += 1;
+				gameOverText.text = "The Blue King is in checkmate.\nThe Yellow team has won!";
 			}
 
 			//DarkTeamWins
 			if(!mainScript.lightWon && !mainScript.draw){
 				dataArr[2] += 1;
+				gameOverText.text = "The Yellow King is in checkmate.\nThe Blue team has won!";
 			}
 
 			//LightTeamForfeits
 			if(mainScript.forfeit && mainScript.lightsTurn){
 				dataArr[3] += 1;
+				
+				if(mainScript.singlePlayer){
+					gameOverText.text = "The Yellow team has forfeited the game.\nThe Computer has won!";
+				} else {
+					gameOverText.text = "The Yellow team has forfeited the game.\nThe Blue team has won!";
+				}
 			}
 
 			//DarkTeamForfeits
 			if(mainScript.forfeit && !mainScript.lightsTurn){
 				dataArr[4] += 1;
+				gameOverText.text = "The Blue team has forfeited the game.\nThe Yellow team has won!";
 			}
 
 			//Draws
 			if(mainScript.draw){
 				dataArr[5] += 1;
+				gameOverText.text = "Both teams have agreed to a draw!";
 			}
 
 			//SinglePlayerGames
@@ -83,6 +94,9 @@ public class writeStatsData : MonoBehaviour {
 			//AIWins
 			if(mainScript.singlePlayer && !mainScript.lightWon){
 				dataArr[8] += 1;
+				if(!mainScript.forfeit){
+					gameOverText.text = "Your King is in checkmate.\nThe Computer has won!";
+				}
 			}
 
 			//AILosses

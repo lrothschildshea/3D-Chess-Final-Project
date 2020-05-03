@@ -30,6 +30,8 @@ public class MenuControls : MonoBehaviour {
 
 	private GameObject nextButton;
 	private GameObject prevButton;
+	
+	
 
 	void Start () {
 		welcomeScreen = GameObject.Find("WelcomeScreen");

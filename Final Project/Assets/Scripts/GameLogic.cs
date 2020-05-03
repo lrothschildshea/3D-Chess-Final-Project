@@ -118,6 +118,10 @@ public class GameLogic : MonoBehaviour {
 
 	internal bool lockCamera;
 
+	private GameObject lightTurnBullet;
+
+	private GameObject darkTurnBullet;
+
 	public Material yellowMaterial;
 	public Material blueMaterial;
 
@@ -172,6 +176,9 @@ public class GameLogic : MonoBehaviour {
 		lockCamera = false;
         //get lists of objects used throughout the game
         gameBoard = GameObject.Find("GameBoard");
+		lightTurnBullet = GameObject.Find("lightTurnBullet");
+		darkTurnBullet = GameObject.Find("darkTurnBullet");
+		darkTurnBullet.SetActive(false);
         foreach(Transform group in gameBoard.transform){
             if (group.gameObject.name.Contains("Level"))
             {
@@ -312,6 +319,14 @@ public class GameLogic : MonoBehaviour {
         }
 
 		lightsTurn = !lightsTurn;
+
+		if(lightsTurn){
+			lightTurnBullet.SetActive(true);
+			darkTurnBullet.SetActive(false);
+		} else {
+			lightTurnBullet.SetActive(false);
+			darkTurnBullet.SetActive(true);
+		}
 
 		List<GameObject> friendlyPieces;
 		List<GameObject> enemyPieces;

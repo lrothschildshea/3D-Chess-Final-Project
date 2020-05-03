@@ -20,10 +20,10 @@ MonoBehaviour:
     y: 30
     width: 2560
     height: 1307
-  m_MinSize: {x: 583, y: 492}
+  m_MinSize: {x: 581, y: 471}
   m_MaxSize: {x: 14004, y: 14042}
   vertical: 0
-  controlID: 1997
+  controlID: 791
 --- !u!114 &2
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -121,10 +121,10 @@ MonoBehaviour:
     y: 0
     width: 1971
     height: 1307
-  m_MinSize: {x: 306, y: 492}
+  m_MinSize: {x: 304, y: 471}
   m_MaxSize: {x: 10002, y: 14042}
   vertical: 1
-  controlID: 1998
+  controlID: 792
 --- !u!114 &4
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -145,10 +145,10 @@ MonoBehaviour:
     y: 0
     width: 1971
     height: 927
-  m_MinSize: {x: 306, y: 221}
-  m_MaxSize: {x: 8006, y: 4021}
+  m_MinSize: {x: 304, y: 200}
+  m_MaxSize: {x: 8004, y: 4021}
   vertical: 0
-  controlID: 1999
+  controlID: 793
 --- !u!114 &5
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -167,8 +167,8 @@ MonoBehaviour:
     y: 0
     width: 425
     height: 927
-  m_MinSize: {x: 202, y: 221}
-  m_MaxSize: {x: 4002, y: 4021}
+  m_MinSize: {x: 200, y: 200}
+  m_MaxSize: {x: 4000, y: 4000}
   m_ActualView: {fileID: 6}
   m_Panes:
   - {fileID: 6}
@@ -203,9 +203,9 @@ MonoBehaviour:
   m_PersistentViewDataDictionary: {fileID: 0}
   m_TreeViewState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: 0cc3ffff
-    m_LastClickedID: -15604
-    m_ExpandedIDs: a2fbffff00000000f6290000642a00003e2e00004a30000086300000
+    m_SelectedIDs: 922d0000
+    m_LastClickedID: 11666
+    m_ExpandedIDs: 9617ffffa2fbffff000000000c2c0000c2300000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -284,14 +284,14 @@ MonoBehaviour:
     height: 906
   m_PersistentViewDataDictionary: {fileID: 0}
   m_SceneLighting: 1
-  lastFramingTime: 110.73100649999999
+  lastFramingTime: 301.50401239999997
   m_2DMode: 0
   m_isRotationLocked: 0
   m_AudioPlay: 0
   m_Position:
-    m_Target: {x: 833.4171, y: 553.98474, z: 154.2251}
+    m_Target: {x: 10.188202, y: 66.875946, z: 18.240356}
     speed: 2
-    m_Value: {x: 833.4171, y: 553.98474, z: 154.2251}
+    m_Value: {x: 10.188202, y: 66.875946, z: 18.240356}
   m_RenderMode: 0
   m_ValidateTrueMetals: 0
   m_SceneViewState:
@@ -315,13 +315,13 @@ MonoBehaviour:
       speed: 2
       m_Value: 0
   m_Rotation:
-    m_Target: {x: 0.058445923, y: -0.0021315017, z: -0.0005840425, w: 0.9982882}
+    m_Target: {x: -0.09245854, y: -0.08347308, z: 0.008491896, w: -0.99217516}
     speed: 2
-    m_Value: {x: -0.058445927, y: 0.0021315017, z: 0.0005840426, w: -0.9982883}
+    m_Value: {x: -0.09245854, y: -0.08347308, z: 0.008491896, w: -0.99217516}
   m_Size:
-    m_Target: 1253.89
+    m_Target: 1956.5348
     speed: 2
-    m_Value: 1253.89
+    m_Value: 1956.5348
   m_Ortho:
     m_Target: 0
     speed: 2
@@ -469,18 +469,18 @@ MonoBehaviour:
     m_ShowAllHits: 0
     m_SearchArea: 0
     m_Folders:
-    - Assets/Basic Metal Texture Pack/Materials
+    - Assets/Scripts
   m_ViewMode: 1
   m_StartGridSize: 64
   m_LastFolders:
-  - Assets/Basic Metal Texture Pack/Materials
+  - Assets/Scripts
   m_LastFoldersGridSize: -1
   m_LastProjectPath: C:\Users\lroth\git\3D-Chess-Final-Project\Final Project
   m_IsLocked: 0
   m_FolderTreeState:
-    scrollPos: {x: 0, y: 79}
-    m_SelectedIDs: 88290000
-    m_LastClickedID: 10632
+    scrollPos: {x: 0, y: 378}
+    m_SelectedIDs: 76280000
+    m_LastClickedID: 10358
     m_ExpandedIDs: 00000000942700009c2700003a2800004a280000682800008c280000a2280000082900002a29000000ca9a3bffffff7f
     m_RenameOverlay:
       m_UserAcceptedRename: 0
@@ -534,8 +534,8 @@ MonoBehaviour:
       m_Icon: {fileID: 0}
       m_ResourceFile: 
   m_ListAreaState:
-    m_SelectedInstanceIDs: 0cc3ffff
-    m_LastClickedInstanceID: -15604
+    m_SelectedInstanceIDs: 922d0000
+    m_LastClickedInstanceID: 11666
     m_HadKeyboardFocusLastEvent: 0
     m_ExpandedInstanceIDs: c623000000000000
     m_RenameOverlay:

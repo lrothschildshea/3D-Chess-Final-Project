@@ -114,6 +114,7 @@ public class TestScript : MonoBehaviour {
 	internal bool lightWon;
 	internal bool draw;
 	internal bool forfeit;
+	private float aiTimePassed;
 
 	public Material yellowMaterial;
 	public Material blueMaterial;
@@ -165,6 +166,7 @@ public class TestScript : MonoBehaviour {
 		lightWon = false;
 		draw = false;
 		forfeit = false;
+		aiTimePassed = 0f;
         //get lists of objects used throughout the game
         gameBoard = GameObject.Find("GameBoard");
         foreach(Transform group in gameBoard.transform){
@@ -345,7 +347,12 @@ public class TestScript : MonoBehaviour {
 			draw = true;
         }
         else if(legalMovePresent && checkState){
-            setBottomPrompt("You are in check!");
+            
+			if(lightsTurn){
+				setBottomPrompt("Yellow is in check!");
+			} else {
+				setBottomPrompt("Blue is in check!");
+			}
         }
 
         if (checkState){
@@ -543,9 +550,13 @@ public class TestScript : MonoBehaviour {
 		} else {
 			//ai makes a move
 			if(!moving && (selectedPiece != null || selectedPlatform != null)){
+				aiTimePassed = 0f;
 				moving = true;
 			}
 			if(!moving){
+				aiTimePassed += Time.deltaTime;
+			}
+			if(!moving && aiTimePassed >= 1f){
 				List<GameObject[]> moves = legalmoves;
 				List<GameObject[]> bestMoves = new List<GameObject[]>();
 				int bestMovesValue = -2000;

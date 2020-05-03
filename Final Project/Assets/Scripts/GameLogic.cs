@@ -125,7 +125,6 @@ public class GameLogic : MonoBehaviour {
 	public Material yellowMaterial;
 	public Material blueMaterial;
 
-
 	// Use this for initialization
 	void Start () {
 		gameStarted = false;
@@ -270,6 +269,8 @@ public class GameLogic : MonoBehaviour {
 
         lightKingOGPos.y += 0.05f;
         darkKingOGPos.y += 0.05f;
+
+		setBottomPrompt("");
     }
 
     bool isDarkPiece(GameObject gamePiece){
@@ -1515,7 +1516,17 @@ public class GameLogic : MonoBehaviour {
 			//can occur due to menus getting disabled and enabled
 			bottomPrompt = GameObject.Find("Bottom Prompt");
 		}
+		TextGenerator textGen = new TextGenerator();
+		TextGenerationSettings generationSettings = bottomPrompt.GetComponent<Text>().GetGenerationSettings(bottomPrompt.GetComponent<Text>().rectTransform.rect.size);
+		float width = textGen.GetPreferredWidth(str, generationSettings);
 		bottomPrompt.GetComponent<Text>().text = str;
+		bottomPrompt.GetComponent<Text>().rectTransform.sizeDelta = new Vector2(width, bottomPrompt.GetComponent<Text>().rectTransform.rect.height);
+		if(str.Length == 0){
+			GameObject.Find("Prompt Image").GetComponent<Image>().rectTransform.sizeDelta = new Vector2(0, 0);
+		}
+		else{
+			GameObject.Find("Prompt Image").GetComponent<Image>().rectTransform.sizeDelta = new Vector2(width+10f, bottomPrompt.GetComponent<Text>().rectTransform.rect.height+10f);
+		}
 		timeSinceTextChange = 0f;
 	}
 

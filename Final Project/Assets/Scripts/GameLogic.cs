@@ -473,11 +473,13 @@ public class GameLogic : MonoBehaviour {
 							selectedPiece.GetComponent<Renderer>().material.color = darkTeamColor;
 						}
 						resetForNextActionWithoutTogglingTurn();
+						setBottomPrompt("");
 						return;
 					} else if(clicked.transform.parent.gameObject.transform.parent.gameObject == selectedPlatform){
 						selectedPlatform.transform.GetChild(4).transform.GetChild(0).gameObject.GetComponent<Renderer>().material.color = standColor;
 						selectedPlatform.transform.GetChild(4).transform.GetChild(1).gameObject.GetComponent<Renderer>().material.color = standColor;
 						resetForNextActionWithoutTogglingTurn();
+						setBottomPrompt("");
 						return;
 					}
 
@@ -485,6 +487,7 @@ public class GameLogic : MonoBehaviour {
 
 					//click on piece
 					if (myPiece && selectedPiece == null && selectedPlatform == null && !isCaptured(clicked)){
+						setBottomPrompt("");
 						selectedPiece = clicked;
 						clicked.GetComponent<Renderer>().material.color = Color.yellow;
 						List<GameObject[]> safeMoves = getSafeMoves(selectedPiece, getAvailableMoves(selectedPiece));
@@ -493,10 +496,18 @@ public class GameLogic : MonoBehaviour {
 							availableMoves.Add(pair[1]);
 						}
 						colorAvailableTiles(availableMoves);
+						if(availableMoves.Count == 0){
+							setBottomPrompt("This piece has no moves.");
+							return;
+						}
+					}else if(selectedPiece == null && selectedPlatform == null && !myPiece && (isDarkPiece(clicked) || isLightPiece(clicked))){
+						setBottomPrompt("Please select a piece of your team's color.");
+						return;
 					}
 
 					//click on destination tile
 					if(selectedPiece != null && isTile(clicked) && availableMoves.Contains(clicked)){
+						setBottomPrompt("");
 						int available = tileAvailable(clicked, selectedPiece);
 						if(available > 0){
 							reColorTiles(availableMoves);
@@ -532,10 +543,23 @@ public class GameLogic : MonoBehaviour {
                             moving = true;
                         }
 
+					} else if(selectedPiece == null && selectedPlatform == null && isTile(clicked)){
+						setBottomPrompt("Please select a piece before selecting a tile.");
+						return;
+					}
+					else if(selectedPiece != null && clicked!=selectedPiece && !availableMoves.Contains(clicked)){
+						if(availableMoves.Count > 0){
+							setBottomPrompt("Please select a highlighted tile.");
+						}
+						else{
+							setBottomPrompt("The selected piece has no moves.");
+						}
+						return;
 					}
 
 					//click on stand
 					if(isStand(clicked) && selectedPlatform == null && selectedPiece == null){
+						setBottomPrompt("");
 						if(canMoveStand(clicked.transform.parent.gameObject.transform.parent.gameObject) < 2){
 							GameObject parent = clicked.transform.parent.gameObject;
 							selectedPlatform = parent.transform.parent.gameObject;
@@ -547,20 +571,40 @@ public class GameLogic : MonoBehaviour {
 								availablePegs.Add(pair[1]);
 								pair[1].GetComponent<Renderer>().material.color = Color.red; 
 							}
+							if(availablePegs.Count == 0){
+								setBottomPrompt("This stand has no moves.");
+							}
 						} else {
-							setBottomPrompt("That stand cannot be moved right now.");
+							if(canMoveStand(clicked.transform.parent.gameObject.transform.parent.gameObject) == 10){
+								setBottomPrompt("Cannot move stand with enemy piece located on it.");
+							}
+							else{
+								setBottomPrompt("Too many pieces located on stand to move.");
+							}
+							
 						}
 
 					}
 
 					//click on destination peg
 					if(selectedPlatform != null && isPeg(clicked) && availablePegs.Contains(clicked)){
+						setBottomPrompt("");
 						selectedPlatformLoc = clicked;
 						reColorPegs();
 						clicked.GetComponent<Renderer>().material.color = Color.yellow;
 						moving = true;
 					}
-
+					else if(selectedPiece == null && selectedPlatform == null && isPeg(clicked)){
+						setBottomPrompt("Please select a stand before selecting a peg.");
+					}
+					else if(selectedPlatform != null && clicked.transform.parent.gameObject.transform.parent.gameObject!=selectedPlatform && !availablePegs.Contains(clicked)){
+						if(availablePegs.Count > 0){
+							setBottomPrompt("Please select a highlighted peg.");
+						}
+						else{
+							setBottomPrompt("The selected stand has no moves.");
+						}
+					}
 				}
 			}
 
@@ -693,8 +737,6 @@ public class GameLogic : MonoBehaviour {
 						selectedTile.GetComponent<Renderer>().material.color = darkTileColor;
 					}
 					
-
-					//need to add a check above not hereish
 					if(capturedPiece != null){
 						capturedPiece.transform.position = dest;
 						if(isLightPiece(capturedPiece)){

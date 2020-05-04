@@ -87,16 +87,14 @@ public class GameLogic : MonoBehaviour {
 
 	private bool intermediatesPrepped;
 	private Vector3 t1; //move left or right
-	private Vector3 t2; //go up/down
-	private Vector3 t3;// slide along z axis
-	private Vector3 t4;// go to right or left to peg
+	private Vector3 t2; //go up/down and forward/backward
+	private Vector3 t3;// go to right or left to peg
 
 	private bool finishedT1;
 	private bool finishedT2;
-	private bool finishedT3;
 
-	private bool changeStandY;
-	private bool hasSetChangeStandY;
+	private bool changePieceY;
+	private bool hasSetChangePieceY;
 
 	internal bool paused;
 	internal bool singlePlayer;
@@ -162,12 +160,10 @@ public class GameLogic : MonoBehaviour {
 		t1 = new Vector3(1000f, 1000f, 1000f);
 		t2 = new Vector3(1000f, 1000f, 1000f);
 		t3 = new Vector3(1000f, 1000f, 1000f);
-		t4 = new Vector3(1000f, 1000f, 1000f);
 		finishedT1 = false;
 		finishedT2 = false;
-		finishedT3 = false;
-		changeStandY = false;
-		hasSetChangeStandY = false;
+		changePieceY = false;
+		hasSetChangePieceY = false;
 		paused = false;
 		singlePlayer = false;
         lightFirstTurn = true;
@@ -408,13 +404,11 @@ public class GameLogic : MonoBehaviour {
 		t1 = new Vector3(1000f, 1000f, 1000f);
 		t2 = new Vector3(1000f, 1000f, 1000f);
 		t3 = new Vector3(1000f, 1000f, 1000f);
-		t4 = new Vector3(1000f, 1000f, 1000f);
-		hasSetChangeStandY = false;
-		changeStandY = false;
+		hasSetChangePieceY = false;
+		changePieceY = false;
 		intermediatesPrepped = false;
 		finishedT1 = false;
 		finishedT2 = false;
-		finishedT3 = false;
         castleRook = null;
 		piecesToUpgrade = new List<GameObject>();
 		playCaptureNoise = true;
@@ -700,7 +694,8 @@ public class GameLogic : MonoBehaviour {
                 }
 				Vector3 location = selectedTile.transform.position;
 				location.y += .05f;
-				selectedPiece.transform.position = Vector3.Lerp(selectedPiece.transform.position, location, Time.deltaTime * 3.5f);
+
+				movePiece(selectedPiece, location);
 
 				Vector3 dest = new Vector3(100000, 100000, 100000);
 
@@ -801,58 +796,7 @@ public class GameLogic : MonoBehaviour {
 				location.y += (2.2f - .051f);
 				location.z -= .5f;
 
-
-				if(!hasSetChangeStandY){
-					changeStandY = Math.Abs(location.y - selectedPlatform.transform.position.y) > .2f;
-					hasSetChangeStandY = true;
-				}
-
-				if(changeStandY){
-					float leftDist = (selectedPlatform.transform.position - GameObject.Find("Captured Dark").transform.position).magnitude;
-					float rightDist = (selectedPlatform.transform.position - GameObject.Find("Captured Light").transform.position).magnitude;
-
-					bool onLeft = leftDist < rightDist;
-
-					if(!intermediatesPrepped){
-						intermediatesPrepped = true;
-						t1 = selectedPlatform.transform.position;
-						if(onLeft){
-							t1.x -= 3;
-						} else{
-							t1.x += 3;
-						}
-						
-						t2 = new Vector3(t1.x, location.y, t1.z);
-						t3 = new Vector3(t2.x, t2.y, location.z);
-						t4 = location;
-					}
-					
-					if(!finishedT1){
-						selectedPlatform.transform.position = Vector3.Lerp(selectedPlatform.transform.position, t1, Time.deltaTime * 3.5f);
-						if((selectedPlatform.transform.position - t1).magnitude < .02){
-							selectedPlatform.transform.position = t1;
-							finishedT1 = true;
-						}
-					} else if(!finishedT2){
-						selectedPlatform.transform.position = Vector3.Lerp(selectedPlatform.transform.position, t2, Time.deltaTime * 3.5f);
-						if((selectedPlatform.transform.position - t2).magnitude < .02){
-							selectedPlatform.transform.position = t2;
-							finishedT2 = true;
-						}
-					} else if(!finishedT3){
-						selectedPlatform.transform.position = Vector3.Lerp(selectedPlatform.transform.position, t3, Time.deltaTime * 3.5f);
-						if((selectedPlatform.transform.position - t3).magnitude < .02){
-							selectedPlatform.transform.position = t3;
-							finishedT3 = true;
-						}
-					} else {
-						selectedPlatform.transform.position = Vector3.Lerp(selectedPlatform.transform.position, t4, Time.deltaTime * 3.5f);
-					}
-				} else {
-					selectedPlatform.transform.position = Vector3.Lerp(selectedPlatform.transform.position, location, Time.deltaTime * 3.5f);
-				}
-
-				
+				movePiece(selectedPlatform, location);
 
 				if((selectedPlatform.transform.position - location).magnitude < .02){
 					selectedPlatform.transform.position = location;
@@ -966,6 +910,51 @@ public class GameLogic : MonoBehaviour {
 					resetForNextAction();
 				}
 			}
+		}
+	}
+
+	void movePiece(GameObject piece, Vector3 location){
+		if(!hasSetChangePieceY){
+			changePieceY = Math.Abs(location.y - piece.transform.position.y) > .2f;
+			hasSetChangePieceY = true;
+		}
+
+		if(changePieceY){
+			float leftDist = (piece.transform.position - GameObject.Find("Captured Dark").transform.position).magnitude;
+			float rightDist = (piece.transform.position - GameObject.Find("Captured Light").transform.position).magnitude;
+
+			bool onLeft = leftDist < rightDist;
+
+			if(!intermediatesPrepped){
+				intermediatesPrepped = true;
+				t1 = piece.transform.position;
+				if(onLeft){
+					t1.x -= 3;
+				} else{
+					t1.x += 3;
+				}
+				
+				t2 = new Vector3(t1.x, location.y, location.z);
+				t3 = location;
+			}
+			
+			if(!finishedT1){
+				piece.transform.position = Vector3.Lerp(piece.transform.position, t1, Time.deltaTime * 3.5f);
+				if((piece.transform.position - t1).magnitude < .02){
+					piece.transform.position = t1;
+					finishedT1 = true;
+				}
+			} else if(!finishedT2){
+				piece.transform.position = Vector3.Lerp(piece.transform.position, t2, Time.deltaTime * 3.5f);
+				if((piece.transform.position - t2).magnitude < .02){
+					piece.transform.position = t2;
+					finishedT2 = true;
+				}
+			} else {
+				piece.transform.position = Vector3.Lerp(piece.transform.position, t3, Time.deltaTime * 3.5f);
+			}
+		} else {
+			piece.transform.position = Vector3.Lerp(piece.transform.position, location, Time.deltaTime * 3.5f);
 		}
 	}
 

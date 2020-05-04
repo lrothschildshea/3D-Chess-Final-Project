@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class SoundManager : MonoBehaviour {
 
-	private GameLogic mainScript;
 	public AudioClip titleSong;
 	public AudioClip backgroundSong;
 	public AudioClip captureSound;
@@ -17,12 +16,10 @@ public class SoundManager : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		mainScript = GameObject.Find("GameBoard").GetComponent<GameLogic>();
 		audioSource = GetComponent<AudioSource>();
 	}
 
 	void Awake(){
-		mainScript = GameObject.Find("GameBoard").GetComponent<GameLogic>();
 		audioSource = GetComponent<AudioSource>();
 	}
 	
@@ -30,8 +27,6 @@ public class SoundManager : MonoBehaviour {
 	void Update () {
 		
 	}
-
-
 
 	public void playSongAndTitleAfter(AudioClip clip){
 		StartCoroutine(playAndThenLoop(clip, titleSong));

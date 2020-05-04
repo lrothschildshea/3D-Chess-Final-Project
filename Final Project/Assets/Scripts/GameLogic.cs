@@ -90,8 +90,16 @@ public class GameLogic : MonoBehaviour {
 	private Vector3 t2; //go up/down and forward/backward
 	private Vector3 t3;// go to right or left to peg
 
+	private Vector3 castleT1;
+	private Vector3 castleT2;
+	private Vector3 castleT3;
+	private bool castleIntermediatesPrepped;
+
 	private bool finishedT1;
 	private bool finishedT2;
+
+	private bool finishedCastleT1;
+	private bool finishedCastleT2;
 
 	private bool changePieceY;
 	private bool hasSetChangePieceY;
@@ -157,11 +165,17 @@ public class GameLogic : MonoBehaviour {
 		lightOptions = GameObject.Find("lightOptions");
 		darkOptions = GameObject.Find("darkOptions");
 		intermediatesPrepped = false;
+		castleIntermediatesPrepped = false;
 		t1 = new Vector3(1000f, 1000f, 1000f);
 		t2 = new Vector3(1000f, 1000f, 1000f);
 		t3 = new Vector3(1000f, 1000f, 1000f);
+		castleT1 = new Vector3(1000f, 1000f, 1000f);
+		castleT2 = new Vector3(1000f, 1000f, 1000f);
+		castleT3 = new Vector3(1000f, 1000f, 1000f);
 		finishedT1 = false;
 		finishedT2 = false;
+		finishedCastleT1 = false;
+		finishedCastleT2 = false;
 		changePieceY = false;
 		hasSetChangePieceY = false;
 		paused = false;
@@ -404,11 +418,17 @@ public class GameLogic : MonoBehaviour {
 		t1 = new Vector3(1000f, 1000f, 1000f);
 		t2 = new Vector3(1000f, 1000f, 1000f);
 		t3 = new Vector3(1000f, 1000f, 1000f);
+		castleT1 = new Vector3(1000f, 1000f, 1000f);
+		castleT2 = new Vector3(1000f, 1000f, 1000f);
+		castleT3 = new Vector3(1000f, 1000f, 1000f);
 		hasSetChangePieceY = false;
 		changePieceY = false;
 		intermediatesPrepped = false;
+		castleIntermediatesPrepped = false;
 		finishedT1 = false;
 		finishedT2 = false;
+		finishedCastleT1 = false;
+		finishedCastleT2 = false;
         castleRook = null;
 		piecesToUpgrade = new List<GameObject>();
 		playCaptureNoise = true;
@@ -716,12 +736,43 @@ public class GameLogic : MonoBehaviour {
 
                 if(castleRook != null){
                     if (lightsTurn){
-                        castleRook.transform.position = Vector3.Lerp(castleRook.transform.position, lightKingOGPos, Time.deltaTime * 3.5f);
+						if(!castleIntermediatesPrepped){
+							castleIntermediatesPrepped = true;
+
+							castleT1 = castleRook.transform.position;
+							castleT1.z -= 1f;
+
+							castleT2 = new Vector3(lightKingOGPos.x, lightKingOGPos.y, castleT1.z);
+							castleT3 = lightKingOGPos;
+						}
+						
+					} else {
+						if(!castleIntermediatesPrepped){
+							castleIntermediatesPrepped = true;
+
+							castleT1 = castleRook.transform.position;
+							castleT1.z += 1f;
+
+							castleT2 = new Vector3(darkKingOGPos.x, darkKingOGPos.y, castleT1.z);
+							castleT3 = darkKingOGPos;
+						}
                     }
-                    else
-                    {
-                        castleRook.transform.position = Vector3.Lerp(castleRook.transform.position, darkKingOGPos, Time.deltaTime * 3.5f);
-                    }
+
+					if(!finishedCastleT1){
+						castleRook.transform.position = Vector3.Lerp(castleRook.transform.position, castleT1, Time.deltaTime * 3.5f);
+						if((castleRook.transform.position - castleT1).magnitude < .02){
+							castleRook.transform.position = castleT1;
+							finishedCastleT1 = true;
+						}
+					} else if(!finishedCastleT2){
+						castleRook.transform.position = Vector3.Lerp(castleRook.transform.position, castleT2, Time.deltaTime * 3.5f);
+						if((castleRook.transform.position - castleT2).magnitude < .02){
+							castleRook.transform.position = castleT2;
+							finishedCastleT2 = true;
+						}
+					} else {
+						castleRook.transform.position = Vector3.Lerp(castleRook.transform.position, castleT3, Time.deltaTime * 3.5f);
+					}
                 }
 
 				bool selectedClose = ((selectedPiece.transform.position - location).magnitude < .02);

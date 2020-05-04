@@ -2069,7 +2069,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   titleSong: {fileID: 8300000, guid: e4201f2aacb7ff34c9e31f744b598406, type: 3}
   backgroundSong: {fileID: 8300000, guid: 1cb5a7be132304c4c8e8c6628de61033, type: 3}
-  captureSound: {fileID: 8300000, guid: c79e6bc2cdcebce4cb562c485b91f46f, type: 3}
+  captureSound: {fileID: 8300000, guid: afbbf3cc4b82c8741b0e601ffff25c7a, type: 3}
   redAlertSound: {fileID: 8300000, guid: f17e6a0625ca66c4eb89ebd692e7744a, type: 3}
   upgradeSong: {fileID: 8300000, guid: 1c8ddbdcbd55e1342ad4f39012a21858, type: 3}
   winSong: {fileID: 8300000, guid: 69e4b4c79afd81544b5f1d6dc5f9e8a2, type: 3}

@@ -717,20 +717,16 @@ public class GameLogic : MonoBehaviour {
 
 				movePiece(selectedPiece, location);
 
-				Vector3 dest = new Vector3(100000, 100000, 100000);
-
 				if(capturedPiece != null){
 					if(playCaptureNoise){
-						soundManager.audioSource.PlayOneShot(soundManager.captureSound, .3F);
+						soundManager.audioSource.PlayOneShot(soundManager.captureSound, 1F);
 						playCaptureNoise = false;
 					}
                     movesWithOutPawnOrCapture = -1;
                     if (isLightPiece(capturedPiece)){
-						dest = new Vector3(lightCapturedPiecesLocations[lightCapturedCounter-1, 0], capturedY, lightCapturedPiecesLocations[lightCapturedCounter-1, 1]);
-						capturedPiece.transform.position = Vector3.Lerp(capturedPiece.transform.position, dest, Time.deltaTime * 3.5f);
+						capturedPiece.transform.position = new Vector3(lightCapturedPiecesLocations[lightCapturedCounter-1, 0], capturedY, lightCapturedPiecesLocations[lightCapturedCounter-1, 1]);
 					} else {
-						dest = new Vector3(darkCapturedPiecesLocations[darkCapturedCounter-1, 0], capturedY, darkCapturedPiecesLocations[darkCapturedCounter-1, 1]);
-						capturedPiece.transform.position = Vector3.Lerp(capturedPiece.transform.position, dest, Time.deltaTime * 3.5f);
+						capturedPiece.transform.position = new Vector3(darkCapturedPiecesLocations[darkCapturedCounter-1, 0], capturedY, darkCapturedPiecesLocations[darkCapturedCounter-1, 1]);
 					}
 				}
 
@@ -776,11 +772,9 @@ public class GameLogic : MonoBehaviour {
                 }
 
 				bool selectedClose = ((selectedPiece.transform.position - location).magnitude < .02);
-				bool noCapPiece = capturedPiece == null;
-				bool capPieceClose = capturedPiece != null && ((capturedPiece.transform.position - dest).magnitude < .02);
-
                 bool noCastleRook = castleRook == null;
                 bool castleRookClose = false;
+
                 if (lightsTurn)
                 {
                     castleRookClose = castleRook != null && ((castleRook.transform.position - lightKingOGPos).magnitude < .02);
@@ -790,7 +784,7 @@ public class GameLogic : MonoBehaviour {
                     castleRookClose = castleRook != null && ((castleRook.transform.position - darkKingOGPos).magnitude < .02);
                 }
 
-                if (selectedClose && (noCapPiece || capPieceClose) && (noCastleRook || castleRookClose)){
+                if (selectedClose && (noCastleRook || castleRookClose)){
 					selectedPiece.transform.position = location;
 					if(isLightPiece(selectedPiece)){
 						selectedPiece.GetComponent<Renderer>().material.color = lightTeamColor;
@@ -805,7 +799,6 @@ public class GameLogic : MonoBehaviour {
 					}
 					
 					if(capturedPiece != null){
-						capturedPiece.transform.position = dest;
 						if(isLightPiece(capturedPiece)){
 							lightPieces.Remove(capturedPiece);
 						} else {
@@ -996,7 +989,7 @@ public class GameLogic : MonoBehaviour {
 					finishedT1 = true;
 				}
 			} else if(!finishedT2){
-				piece.transform.position = Vector3.Lerp(piece.transform.position, t2, Time.deltaTime * 3.5f);
+				piece.transform.position = Vector3.Lerp(piece.transform.position, t2, Time.deltaTime * 5f);
 				if((piece.transform.position - t2).magnitude < .02){
 					piece.transform.position = t2;
 					finishedT2 = true;

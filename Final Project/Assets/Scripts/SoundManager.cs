@@ -14,53 +14,36 @@ public class SoundManager : MonoBehaviour {
 	public AudioClip drawSong;
 	internal AudioSource audioSource;
 	private Coroutine currentRoutine;
-
-	// Use this for initialization
-	void Start () {
-		audioSource = GetComponent<AudioSource>();
-		currentRoutine= null;
-	}
+    private int counter;
 
 	void Awake () {
 		audioSource = GetComponent<AudioSource>();
 		currentRoutine= null;
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
+        counter = 0;
 	}
 
 	public void playSongAndTitleAfter(AudioClip clip){
-		Debug.Log("This sucks");
-		if(currentRoutine != null){
-			StopCoroutine(currentRoutine);
-		}
-		
-		currentRoutine = StartCoroutine(playAndThenLoop(clip, titleSong));
-	}
+        counter++;
+        currentRoutine = StartCoroutine(playAndThenLoop(clip, titleSong, counter));
+    }
 
 	public void playSongAndBackgroundAfter(AudioClip clip){
-		Debug.Log("This is good");
-		if(currentRoutine != null){
-			StopCoroutine(currentRoutine);
-		}
-		currentRoutine = StartCoroutine(playAndThenLoop(clip, backgroundSong));
-	}
+        counter++;
+        currentRoutine = StartCoroutine(playAndThenLoop(clip, backgroundSong, counter));
+    }
 
-	IEnumerator playAndThenLoop(AudioClip song, AudioClip loop){
+	IEnumerator playAndThenLoop(AudioClip song, AudioClip loop, int currentCounter){
 		if(audioSource.isPlaying){
 			audioSource.Stop();
 		}
-
-		audioSource.loop = false;
-		audioSource.clip = song;
-		Debug.Log("This asdfghijksadjkl  " + song.name);
-		audioSource.Play();
-		yield return new WaitForSeconds(song.length);
-		Debug.Log("This sucks  " + loop.name);
-		audioSource.clip = loop;
-		audioSource.Play();
-		audioSource.loop = true;
+        audioSource.loop = false;
+        audioSource.clip = song;
+        audioSource.Play();
+        yield return new WaitForSeconds(song.length);
+        if (counter == currentCounter){
+            audioSource.clip = loop;
+            audioSource.Play();
+            audioSource.loop = true;
+        }
 	}
 }

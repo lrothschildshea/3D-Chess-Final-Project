@@ -79,6 +79,10 @@ public class writeStatsData : MonoBehaviour {
 			if(mainScript.draw){
 				dataArr[5] += 1;
 				gameOverText.text = "Both teams have agreed to a draw!";
+				mainScript.audioSource.Stop();
+				//mainScript.audioSource.PlayOneShot(mainScript.drawSong , .6F);
+
+				StartCoroutine(playSong(mainScript.drawSong));
 			}
 
 			//SinglePlayerGames
@@ -114,5 +118,16 @@ public class writeStatsData : MonoBehaviour {
 			System.IO.File.WriteAllText("stats.csv", csv.ToString()); 
 			written = true;
 		}
+	}
+
+
+	IEnumerator playSong(AudioClip clip){
+		mainScript.audioSource.loop = false;
+		mainScript.audioSource.clip = clip;
+		mainScript.audioSource.Play();
+		yield return new WaitForSeconds(clip.length);
+		mainScript.audioSource.clip = mainScript.mainMenuSong;
+		mainScript.audioSource.Play();
+		mainScript.audioSource.loop = true;
 	}
 }

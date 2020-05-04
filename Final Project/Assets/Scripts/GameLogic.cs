@@ -125,6 +125,12 @@ public class GameLogic : MonoBehaviour {
 	public Material yellowMaterial;
 	public Material blueMaterial;
 
+	internal AudioSource audioSource;
+
+	public AudioClip drawSong;
+	public AudioClip mainMenuSong;
+	private GameObject bottomPromptImage;
+
 	// Use this for initialization
 	void Start () {
 		gameStarted = false;
@@ -173,11 +179,13 @@ public class GameLogic : MonoBehaviour {
 		forfeit = false;
 		aiTimePassed = 0f;
 		lockCamera = false;
-        //get lists of objects used throughout the game
-        gameBoard = GameObject.Find("GameBoard");
 		lightTurnBullet = GameObject.Find("lightTurnBullet");
 		darkTurnBullet = GameObject.Find("darkTurnBullet");
 		darkTurnBullet.SetActive(false);
+		bottomPromptImage = GameObject.Find("Prompt Image");
+		audioSource = GetComponent<AudioSource>();
+        //get lists of objects used throughout the game
+        gameBoard = GameObject.Find("GameBoard");
         foreach(Transform group in gameBoard.transform){
             if (group.gameObject.name.Contains("Level"))
             {
@@ -1515,18 +1523,22 @@ public class GameLogic : MonoBehaviour {
 		if(bottomPrompt == null){
 			//can occur due to menus getting disabled and enabled
 			bottomPrompt = GameObject.Find("Bottom Prompt");
+			bottomPromptImage = GameObject.Find("Prompt Image");
 		}
 		TextGenerator textGen = new TextGenerator();
 		TextGenerationSettings generationSettings = bottomPrompt.GetComponent<Text>().GetGenerationSettings(bottomPrompt.GetComponent<Text>().rectTransform.rect.size);
 		float width = textGen.GetPreferredWidth(str, generationSettings);
 		bottomPrompt.GetComponent<Text>().text = str;
 		bottomPrompt.GetComponent<Text>().rectTransform.sizeDelta = new Vector2(width, bottomPrompt.GetComponent<Text>().rectTransform.rect.height);
-		if(str.Length == 0){
-			GameObject.Find("Prompt Image").GetComponent<Image>().rectTransform.sizeDelta = new Vector2(0, 0);
+		if(bottomPromptImage.activeSelf){
+			if(str.Length == 0){
+				bottomPromptImage.GetComponent<Image>().rectTransform.sizeDelta = new Vector2(0, 0);
+			}
+			else{
+				bottomPromptImage.GetComponent<Image>().rectTransform.sizeDelta = new Vector2(width+10f, bottomPrompt.GetComponent<Text>().rectTransform.rect.height+10f);
+			}
 		}
-		else{
-			GameObject.Find("Prompt Image").GetComponent<Image>().rectTransform.sizeDelta = new Vector2(width+10f, bottomPrompt.GetComponent<Text>().rectTransform.rect.height+10f);
-		}
+
 		timeSinceTextChange = 0f;
 	}
 

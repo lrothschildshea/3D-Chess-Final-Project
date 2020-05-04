@@ -1975,6 +1975,8 @@ MonoBehaviour:
     type: 2}
   yellowMaterial: {fileID: 2100000, guid: 9f22f75fb53901b469b37c9a264be11e, type: 2}
   blueMaterial: {fileID: 2100000, guid: dee1ecc650024784ea3cfe8cc39008b9, type: 2}
+  drawSong: {fileID: 8300000, guid: 3c8e0a050001c7e47b9606692822f6b4, type: 3}
+  mainMenuSong: {fileID: 8300000, guid: e4201f2aacb7ff34c9e31f744b598406, type: 3}
 --- !u!82 &169135434
 AudioSource:
   m_ObjectHideFlags: 0

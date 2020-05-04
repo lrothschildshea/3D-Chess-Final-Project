@@ -86,6 +86,9 @@ public class GameLogic : MonoBehaviour {
     private bool doOnce;
 
 	private bool intermediatesPrepped;
+
+	private Vector3 tUp;
+	private Vector3 tDown;
 	private Vector3 t1; //move left or right
 	private Vector3 t2; //go up/down and forward/backward
 	private Vector3 t3;// go to right or left to peg
@@ -95,6 +98,8 @@ public class GameLogic : MonoBehaviour {
 	private Vector3 castleT3;
 	private bool castleIntermediatesPrepped;
 
+	private bool finishedTUp;
+	private bool finishedT3;
 	private bool finishedT1;
 	private bool finishedT2;
 
@@ -166,14 +171,18 @@ public class GameLogic : MonoBehaviour {
 		darkOptions = GameObject.Find("darkOptions");
 		intermediatesPrepped = false;
 		castleIntermediatesPrepped = false;
+		tUp = new Vector3(1000f, 1000f, 1000f);
 		t1 = new Vector3(1000f, 1000f, 1000f);
 		t2 = new Vector3(1000f, 1000f, 1000f);
 		t3 = new Vector3(1000f, 1000f, 1000f);
+		tDown = new Vector3(1000f, 1000f, 1000f);
 		castleT1 = new Vector3(1000f, 1000f, 1000f);
 		castleT2 = new Vector3(1000f, 1000f, 1000f);
 		castleT3 = new Vector3(1000f, 1000f, 1000f);
 		finishedT1 = false;
 		finishedT2 = false;
+		finishedTUp = false;
+		finishedT3 = false;
 		finishedCastleT1 = false;
 		finishedCastleT2 = false;
 		changePieceY = false;
@@ -415,9 +424,11 @@ public class GameLogic : MonoBehaviour {
 		reColorTiles(tiles);
         availableMoves = new List<GameObject>();
         availablePegs = new List<GameObject>();
+		tUp = new Vector3(1000f, 1000f, 1000f);
 		t1 = new Vector3(1000f, 1000f, 1000f);
 		t2 = new Vector3(1000f, 1000f, 1000f);
 		t3 = new Vector3(1000f, 1000f, 1000f);
+		tDown = new Vector3(1000f, 1000f, 1000f);
 		castleT1 = new Vector3(1000f, 1000f, 1000f);
 		castleT2 = new Vector3(1000f, 1000f, 1000f);
 		castleT3 = new Vector3(1000f, 1000f, 1000f);
@@ -427,6 +438,8 @@ public class GameLogic : MonoBehaviour {
 		castleIntermediatesPrepped = false;
 		finishedT1 = false;
 		finishedT2 = false;
+		finishedTUp = false;
+		finishedT3 = false;
 		finishedCastleT1 = false;
 		finishedCastleT2 = false;
         castleRook = null;
@@ -971,19 +984,30 @@ public class GameLogic : MonoBehaviour {
 
 			if(!intermediatesPrepped){
 				intermediatesPrepped = true;
-				t1 = piece.transform.position;
+				tUp = piece.transform.position;
+				tUp.y += .31f;
+				t1 = new Vector3(tUp.x, tUp.y, tUp.z);
 				if(onLeft){
-					t1.x -= 3;
+					
+					t1.x = GameObject.Find("Captured Dark").transform.position.x + 3f;
 				} else{
-					t1.x += 3;
+					t1.x = GameObject.Find("Captured Light").transform.position.x - 3f;;
 				}
 				
-				t2 = new Vector3(t1.x, location.y, location.z);
+				t2 = new Vector3(t1.x, location.y + .31f, location.z);
 				t3 = location;
+				t3.y += .31f;
+				tDown = location;
 			}
 			
-			if(!finishedT1){
-				piece.transform.position = Vector3.Lerp(piece.transform.position, t1, Time.deltaTime * 3.5f);
+			if(!finishedTUp){
+				piece.transform.position = Vector3.Lerp(piece.transform.position, tUp, Time.deltaTime * 4f);
+				if((piece.transform.position - tUp).magnitude < .02){
+					piece.transform.position = tUp;
+					finishedTUp = true;
+				}
+			} else if(!finishedT1){
+				piece.transform.position = Vector3.Lerp(piece.transform.position, t1, Time.deltaTime * 4f);
 				if((piece.transform.position - t1).magnitude < .02){
 					piece.transform.position = t1;
 					finishedT1 = true;
@@ -994,11 +1018,40 @@ public class GameLogic : MonoBehaviour {
 					piece.transform.position = t2;
 					finishedT2 = true;
 				}
+			} else if(!finishedT3){
+				piece.transform.position = Vector3.Lerp(piece.transform.position, t3, Time.deltaTime * 4f);
+				if((piece.transform.position - t3).magnitude < .02){
+					piece.transform.position = t3;
+					finishedT3 = true;
+				}
 			} else {
-				piece.transform.position = Vector3.Lerp(piece.transform.position, t3, Time.deltaTime * 3.5f);
+				piece.transform.position = Vector3.Lerp(piece.transform.position, tDown, Time.deltaTime * 3.5f);
 			}
 		} else {
-			piece.transform.position = Vector3.Lerp(piece.transform.position, location, Time.deltaTime * 3.5f);
+			
+			if(!intermediatesPrepped){
+				intermediatesPrepped = true;
+				tUp = piece.transform.position;
+				tUp.y += .31f;
+				t1 = new Vector3(location.x, location.y + .31f, location.z);
+				tDown = location;
+			}
+			
+			if(!finishedTUp){
+				piece.transform.position = Vector3.Lerp(piece.transform.position, tUp, Time.deltaTime * 4f);
+				if((piece.transform.position - tUp).magnitude < .02){
+					piece.transform.position = tUp;
+					finishedTUp = true;
+				}
+			} else if(!finishedT1){
+				piece.transform.position = Vector3.Lerp(piece.transform.position, t1, Time.deltaTime * 4f);
+				if((piece.transform.position - t1).magnitude < .02){
+					piece.transform.position = t1;
+					finishedT1 = true;
+				}
+			} else {
+				piece.transform.position = Vector3.Lerp(piece.transform.position, tDown, Time.deltaTime * 3.5f);
+			}
 		}
 	}
 

@@ -13,6 +13,8 @@ public class writeStatsData : MonoBehaviour {
 	private GameLogic mainScript;
 	public Text gameOverText;
 
+	private SoundManager soundManager;
+
 	// Use this for initialization
 	void Start () {
 		written = false;
@@ -22,6 +24,7 @@ public class writeStatsData : MonoBehaviour {
 			dataArr[i] = 0;
 		}
 		mainScript = GameObject.Find("GameBoard").GetComponent<GameLogic>();
+		soundManager = GameObject.Find("GameBoard").GetComponent<SoundManager>();
 	}
 	
 	// Update is called once per frame
@@ -45,6 +48,16 @@ public class writeStatsData : MonoBehaviour {
 
 			//total games
 			dataArr[0] += 1;
+
+
+			if((!mainScript.singlePlayer && !mainScript.draw) || mainScript.lightWon){
+				soundManager.playSongAndTitleAfter(soundManager.winSong);
+			} else if(!mainScript.draw){
+				soundManager.playSongAndTitleAfter(soundManager.loseSong);
+			} else if(mainScript.draw){
+				Debug.Log("hi");
+				soundManager.playSongAndTitleAfter(soundManager.drawSong);
+			}
 
 			//lightTeamWins
 			if(mainScript.lightWon && !mainScript.draw){
@@ -79,10 +92,6 @@ public class writeStatsData : MonoBehaviour {
 			if(mainScript.draw){
 				dataArr[5] += 1;
 				gameOverText.text = "Both teams have agreed to a draw!";
-				mainScript.audioSource.Stop();
-				//mainScript.audioSource.PlayOneShot(mainScript.drawSong , .6F);
-
-				StartCoroutine(playSong(mainScript.drawSong));
 			}
 
 			//SinglePlayerGames
@@ -118,16 +127,5 @@ public class writeStatsData : MonoBehaviour {
 			System.IO.File.WriteAllText("stats.csv", csv.ToString()); 
 			written = true;
 		}
-	}
-
-
-	IEnumerator playSong(AudioClip clip){
-		mainScript.audioSource.loop = false;
-		mainScript.audioSource.clip = clip;
-		mainScript.audioSource.Play();
-		yield return new WaitForSeconds(clip.length);
-		mainScript.audioSource.clip = mainScript.mainMenuSong;
-		mainScript.audioSource.Play();
-		mainScript.audioSource.loop = true;
 	}
 }

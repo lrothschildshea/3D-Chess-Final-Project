@@ -55,6 +55,7 @@
      <Compile Include="Assets\Scripts\CameraMovement.cs" />
      <Compile Include="Assets\Scripts\GameLogic.cs" />
      <Compile Include="Assets\Scripts\MenuControls.cs" />
+     <Compile Include="Assets\Scripts\SoundManager.cs" />
      <Compile Include="Assets\Scripts\StatsLogic.cs" />
      <Compile Include="Assets\Scripts\upgradeSelection.cs" />
      <Compile Include="Assets\Scripts\writeStatsData.cs" />

@@ -117,6 +117,7 @@ public class GameLogic : MonoBehaviour {
 	private float aiTimePassed;
 
 	internal bool lockCamera;
+	private bool startBackgroundMusic;
 
 	private GameObject lightTurnBullet;
 
@@ -125,11 +126,9 @@ public class GameLogic : MonoBehaviour {
 	public Material yellowMaterial;
 	public Material blueMaterial;
 
-	internal AudioSource audioSource;
-
-	public AudioClip drawSong;
-	public AudioClip mainMenuSong;
 	private GameObject bottomPromptImage;
+	private SoundManager soundManager;
+	private bool playCaptureNoise;
 
 	// Use this for initialization
 	void Start () {
@@ -179,11 +178,13 @@ public class GameLogic : MonoBehaviour {
 		forfeit = false;
 		aiTimePassed = 0f;
 		lockCamera = false;
+		startBackgroundMusic = true;
 		lightTurnBullet = GameObject.Find("lightTurnBullet");
 		darkTurnBullet = GameObject.Find("darkTurnBullet");
 		darkTurnBullet.SetActive(false);
 		bottomPromptImage = GameObject.Find("Prompt Image");
-		audioSource = GetComponent<AudioSource>();
+		soundManager = GameObject.Find("GameBoard").GetComponent<SoundManager>();
+		playCaptureNoise = true;
         //get lists of objects used throughout the game
         gameBoard = GameObject.Find("GameBoard");
         foreach(Transform group in gameBoard.transform){
@@ -277,7 +278,7 @@ public class GameLogic : MonoBehaviour {
 
         lightKingOGPos.y += 0.05f;
         darkKingOGPos.y += 0.05f;
-
+		soundManager.playSongAndTitleAfter(soundManager.titleSong);
 		setBottomPrompt("");
     }
 
@@ -384,7 +385,7 @@ public class GameLogic : MonoBehaviour {
         }
 
         if (checkState){
-            GameObject.Find("GameBoard").GetComponent<AudioSource>().PlayOneShot(checkRedAlert, .2F);
+            soundManager.audioSource.PlayOneShot(soundManager.redAlertSound, .2F);
         }
 	}
 
@@ -416,6 +417,7 @@ public class GameLogic : MonoBehaviour {
 		finishedT3 = false;
         castleRook = null;
 		piecesToUpgrade = new List<GameObject>();
+		playCaptureNoise = true;
 	}
 	
 	// Update is called once per frame
@@ -423,6 +425,12 @@ public class GameLogic : MonoBehaviour {
 		if(!gameStarted){
 			return;
 		}
+
+		if(startBackgroundMusic){
+			soundManager.playSongAndTitleAfter(soundManager.backgroundSong);
+			startBackgroundMusic = false;
+		}
+
 		if(gameOver && !showedGameOverScreen){
 			menuScript.enableGameOverScreen();
 			showedGameOverScreen = true;
@@ -697,6 +705,10 @@ public class GameLogic : MonoBehaviour {
 				Vector3 dest = new Vector3(100000, 100000, 100000);
 
 				if(capturedPiece != null){
+					if(playCaptureNoise){
+						soundManager.audioSource.PlayOneShot(soundManager.captureSound, .3F);
+						playCaptureNoise = false;
+					}
                     movesWithOutPawnOrCapture = -1;
                     if (isLightPiece(capturedPiece)){
 						dest = new Vector3(lightCapturedPiecesLocations[lightCapturedCounter-1, 0], capturedY, lightCapturedPiecesLocations[lightCapturedCounter-1, 1]);
@@ -884,6 +896,7 @@ public class GameLogic : MonoBehaviour {
 					} else {
 						newPiece = Instantiate(darkQueenPrefab, piece.transform.position, Quaternion.identity);
 					}
+					soundManager.audioSource.PlayOneShot(soundManager.upgradeSong, .5F);
 					newPiece.transform.localScale = piece.transform.localScale;
 
                     newPiece.transform.eulerAngles = new Vector3(newPiece.transform.eulerAngles.x, newPiece.transform.eulerAngles.y + 180, newPiece.transform.eulerAngles.z);
@@ -926,6 +939,7 @@ public class GameLogic : MonoBehaviour {
 					} else{
 						newPiece = Instantiate(darkQueenPrefab, piece.transform.position, Quaternion.identity);
 					}
+					soundManager.audioSource.PlayOneShot(soundManager.upgradeSong, .5F);
 					newPiece.transform.localScale = piece.transform.localScale;
 
 					if(upgradeSelection.Contains("L")){

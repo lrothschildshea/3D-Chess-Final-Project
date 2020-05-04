@@ -1915,6 +1915,7 @@ GameObject:
   - component: {fileID: 169135432}
   - component: {fileID: 169135433}
   - component: {fileID: 169135434}
+  - component: {fileID: 169135435}
   m_Layer: 0
   m_Name: GameBoard
   m_TagString: Untagged
@@ -1975,8 +1976,6 @@ MonoBehaviour:
     type: 2}
   yellowMaterial: {fileID: 2100000, guid: 9f22f75fb53901b469b37c9a264be11e, type: 2}
   blueMaterial: {fileID: 2100000, guid: dee1ecc650024784ea3cfe8cc39008b9, type: 2}
-  drawSong: {fileID: 8300000, guid: 3c8e0a050001c7e47b9606692822f6b4, type: 3}
-  mainMenuSong: {fileID: 8300000, guid: e4201f2aacb7ff34c9e31f744b598406, type: 3}
 --- !u!82 &169135434
 AudioSource:
   m_ObjectHideFlags: 0
@@ -2057,6 +2056,25 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 0
+--- !u!114 &169135435
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 169135431}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b3b9c2083473ca4490c493514b4ace4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  titleSong: {fileID: 8300000, guid: e4201f2aacb7ff34c9e31f744b598406, type: 3}
+  backgroundSong: {fileID: 8300000, guid: 1cb5a7be132304c4c8e8c6628de61033, type: 3}
+  captureSound: {fileID: 8300000, guid: c79e6bc2cdcebce4cb562c485b91f46f, type: 3}
+  redAlertSound: {fileID: 8300000, guid: f17e6a0625ca66c4eb89ebd692e7744a, type: 3}
+  upgradeSong: {fileID: 8300000, guid: 1c8ddbdcbd55e1342ad4f39012a21858, type: 3}
+  winSong: {fileID: 8300000, guid: 69e4b4c79afd81544b5f1d6dc5f9e8a2, type: 3}
+  loseSong: {fileID: 8300000, guid: 09fdbe728fbc3cd4ab5621866174001e, type: 3}
+  drawSong: {fileID: 8300000, guid: 3c8e0a050001c7e47b9606692822f6b4, type: 3}
 --- !u!1 &174416703
 GameObject:
   m_ObjectHideFlags: 0

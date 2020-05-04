@@ -454,7 +454,7 @@ public class GameLogic : MonoBehaviour {
 		}
 
 		if(startBackgroundMusic){
-			soundManager.playSongAndTitleAfter(soundManager.backgroundSong);
+			soundManager.playSongAndBackgroundAfter(soundManager.backgroundSong);
 			startBackgroundMusic = false;
 		}
 

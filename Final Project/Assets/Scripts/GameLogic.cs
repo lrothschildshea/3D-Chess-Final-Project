@@ -413,7 +413,7 @@ public class GameLogic : MonoBehaviour {
         }
 
         if (checkState){
-            soundManager.audioSource.PlayOneShot(soundManager.redAlertSound, .2F);
+            soundManager.audioSource.PlayOneShot(soundManager.redAlertSound, .5F);
         }
 	}
 
@@ -816,7 +816,7 @@ public class GameLogic : MonoBehaviour {
 
                 if (selectedClose && (noCastleRook || castleRookClose)){
 					selectedPiece.transform.position = location;
-					soundManager.audioSource.PlayOneShot(soundManager.pieceSound,.5f);
+					soundManager.audioSource.PlayOneShot(soundManager.pieceSound,.6f);
 					if(isLightPiece(selectedPiece)){
 						selectedPiece.GetComponent<Renderer>().material.color = lightTeamColor;
 					} else {
@@ -875,7 +875,7 @@ public class GameLogic : MonoBehaviour {
 
 				if((selectedPlatform.transform.position - location).magnitude < .02){
 					selectedPlatform.transform.position = location;
-					soundManager.audioSource.PlayOneShot(soundManager.standSound,.5f);
+					soundManager.audioSource.PlayOneShot(soundManager.standSound,.7f);
                     stationarySubLevels.Remove(selectedPlatform);
 					selectedPlatform.transform.GetChild(4).transform.GetChild(0).gameObject.GetComponent<Renderer>().material.color = standColor;
 					selectedPlatform.transform.GetChild(4).transform.GetChild(1).gameObject.GetComponent<Renderer>().material.color = standColor;
@@ -916,7 +916,7 @@ public class GameLogic : MonoBehaviour {
 					} else {
 						newPiece = Instantiate(darkQueenPrefab, piece.transform.position, Quaternion.identity);
 					}
-					soundManager.audioSource.PlayOneShot(soundManager.upgradeSong, .5F);
+					soundManager.audioSource.PlayOneShot(soundManager.upgradeSong, .65F);
 					newPiece.transform.localScale = piece.transform.localScale;
 
                     newPiece.transform.eulerAngles = new Vector3(newPiece.transform.eulerAngles.x, newPiece.transform.eulerAngles.y + 180, newPiece.transform.eulerAngles.z);
@@ -959,7 +959,7 @@ public class GameLogic : MonoBehaviour {
 					} else{
 						newPiece = Instantiate(darkQueenPrefab, piece.transform.position, Quaternion.identity);
 					}
-					soundManager.audioSource.PlayOneShot(soundManager.upgradeSong, .5F);
+					soundManager.audioSource.PlayOneShot(soundManager.upgradeSong, .65F);
 					newPiece.transform.localScale = piece.transform.localScale;
 
 					if(upgradeSelection.Contains("L")){
@@ -2032,7 +2032,7 @@ public class GameLogic : MonoBehaviour {
 				} else if(candidatePiece.name.Contains("Queen")){
 					value += 95;
 				} else {
-					//king - should never happen i think
+					//king - should never happen
 					value += 100;
 				}
 			}

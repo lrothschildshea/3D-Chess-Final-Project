@@ -55,7 +55,6 @@ public class writeStatsData : MonoBehaviour {
 			} else if(!mainScript.draw){
 				soundManager.playSongAndTitleAfter(soundManager.loseSong);
 			} else if(mainScript.draw){
-				Debug.Log("hi");
 				soundManager.playSongAndTitleAfter(soundManager.drawSong);
 			}
 

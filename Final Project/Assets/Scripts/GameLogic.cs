@@ -141,6 +141,7 @@ public class GameLogic : MonoBehaviour {
 	private bool playCaptureNoise;
 	public Camera mainCamera;
 	public Camera menuCamera;
+	private GameObject forfeitButton;
 
 	// Use this for initialization
 	void Start () {
@@ -207,6 +208,7 @@ public class GameLogic : MonoBehaviour {
 		playCaptureNoise = true;
 		mainCamera.enabled = false;
 		menuCamera.enabled = true;
+		forfeitButton = GameObject.Find("ForfeitButton");
         //get lists of objects used throughout the game
         gameBoard = GameObject.Find("GameBoard");
         foreach(Transform group in gameBoard.transform){
@@ -355,9 +357,13 @@ public class GameLogic : MonoBehaviour {
 		if(lightsTurn){
 			lightTurnBullet.SetActive(true);
 			darkTurnBullet.SetActive(false);
+			forfeitButton.SetActive(true);
 		} else {
 			lightTurnBullet.SetActive(false);
 			darkTurnBullet.SetActive(true);
+			if(singlePlayer){
+				forfeitButton.SetActive(false);
+			}
 		}
 
 		List<GameObject> friendlyPieces;

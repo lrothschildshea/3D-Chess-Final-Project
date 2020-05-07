@@ -12,6 +12,8 @@ public class SoundManager : MonoBehaviour {
 	public AudioClip winSong;
 	public AudioClip loseSong;
 	public AudioClip drawSong;
+	public AudioClip pieceSound;
+	public AudioClip standSound;
 	internal AudioSource audioSource;
     private int counter;
 

@@ -63,7 +63,6 @@ public class GameLogic : MonoBehaviour {
 	private List<GameObject> darkUpgradeTiles;
 
 	//set in unity
-	public AudioClip checkRedAlert;
 	public GameObject lightKnightPrefab;
 	public GameObject lightRookPrefab;
 	public GameObject lightBishopPrefab;
@@ -811,6 +810,7 @@ public class GameLogic : MonoBehaviour {
 
                 if (selectedClose && (noCastleRook || castleRookClose)){
 					selectedPiece.transform.position = location;
+					soundManager.audioSource.PlayOneShot(soundManager.pieceSound,.5f);
 					if(isLightPiece(selectedPiece)){
 						selectedPiece.GetComponent<Renderer>().material.color = lightTeamColor;
 					} else {
@@ -869,6 +869,7 @@ public class GameLogic : MonoBehaviour {
 
 				if((selectedPlatform.transform.position - location).magnitude < .02){
 					selectedPlatform.transform.position = location;
+					soundManager.audioSource.PlayOneShot(soundManager.standSound,.5f);
                     stationarySubLevels.Remove(selectedPlatform);
 					selectedPlatform.transform.GetChild(4).transform.GetChild(0).gameObject.GetComponent<Renderer>().material.color = standColor;
 					selectedPlatform.transform.GetChild(4).transform.GetChild(1).gameObject.GetComponent<Renderer>().material.color = standColor;

@@ -2035,7 +2035,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 94c07595282be4343b262fd7edc41684, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  checkRedAlert: {fileID: 8300000, guid: f17e6a0625ca66c4eb89ebd692e7744a, type: 3}
   lightKnightPrefab: {fileID: 1992623236052302, guid: 85ad2c556fdbd5747ac7f5f67f10e59b,
     type: 2}
   lightRookPrefab: {fileID: 1971375302472462, guid: f1fc282519e5c4a4daaa864f9c3d446f,
@@ -2155,6 +2154,8 @@ MonoBehaviour:
   winSong: {fileID: 8300000, guid: 69e4b4c79afd81544b5f1d6dc5f9e8a2, type: 3}
   loseSong: {fileID: 8300000, guid: 09fdbe728fbc3cd4ab5621866174001e, type: 3}
   drawSong: {fileID: 8300000, guid: 3c8e0a050001c7e47b9606692822f6b4, type: 3}
+  pieceSound: {fileID: 8300000, guid: 302d88fcdf58af34d8c8f5d595f842e5, type: 3}
+  standSound: {fileID: 8300000, guid: 24376ebd72e0d44448362be21b8cc88e, type: 3}
 --- !u!1 &174416703
 GameObject:
   m_ObjectHideFlags: 0

@@ -140,6 +140,8 @@ public class GameLogic : MonoBehaviour {
 	private GameObject bottomPromptImage;
 	private SoundManager soundManager;
 	private bool playCaptureNoise;
+	public Camera mainCamera;
+	public Camera menuCamera;
 
 	// Use this for initialization
 	void Start () {
@@ -204,6 +206,8 @@ public class GameLogic : MonoBehaviour {
 		bottomPromptImage = GameObject.Find("Prompt Image");
 		soundManager = GameObject.Find("GameBoard").GetComponent<SoundManager>();
 		playCaptureNoise = true;
+		mainCamera.enabled = false;
+		menuCamera.enabled = true;
         //get lists of objects used throughout the game
         gameBoard = GameObject.Find("GameBoard");
         foreach(Transform group in gameBoard.transform){
@@ -456,11 +460,19 @@ public class GameLogic : MonoBehaviour {
 		if(startBackgroundMusic){
 			soundManager.playSongAndBackgroundAfter(soundManager.backgroundSong);
 			startBackgroundMusic = false;
+			mainCamera.enabled = true;
+			menuCamera.enabled = false;
 		}
 
 		if(gameOver && !showedGameOverScreen){
 			menuScript.enableGameOverScreen();
 			showedGameOverScreen = true;
+			mainCamera.enabled = false;
+			menuCamera.enabled = true;
+			return;
+		}
+
+		if(gameOver){
 			return;
 		}
 

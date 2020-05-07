@@ -4,7 +4,7 @@ C:/Users/lroth/Downloads/3DChess.exe
 SceneListBegin?
 Assets/Board.unity
 SceneListEnd?
-217f8fae4956451fee94bf3bd4ddf40e Assembly-CSharp.dll:.SoundManager
+257008b0469b9863b4ef8aed064e7629 Assembly-CSharp.dll:.SoundManager
 05524b8f659e7bfe5756d1335fec24ba UnityEngine.Timeline.dll:UnityEngine.Timeline.ActivationPlayableAsset
 4b12dd839b2293f8457cd67cc3610b85 UnityEngine.Timeline.dll:UnityEngine.Timeline.ActivationTrack
 8144169769d51429c4aedc8b0f92d47b UnityEngine.Timeline.dll:UnityEngine.Timeline.AnimationPlayableAsset
@@ -117,7 +117,7 @@ bc68edb0af574bf79f9550ead8ebae5c UnityEngine.HoloLens.dll:UnityEngine.Audio.Audi
 463516d5b5fe8e67a0a24c48f2095b04 UnityEngine.HoloLens.dll:UnityEngine.EventSystems.HoloLensInputModule
 c2275a8bfbb9f9942cad75ecdfded41d UnityEngine.HoloLens.dll:UnityEngine.XR.WSA.SpatialMappingCollider
 45f3431f0103c41611e8d4eec3d439df UnityEngine.HoloLens.dll:UnityEngine.XR.WSA.SpatialMappingRenderer
-d58d92201f6d3faaf5eb1f9bc1a15853 Assembly-CSharp.dll:.GameLogic
+88cc689ee5422f55e3a63a749943cedc Assembly-CSharp.dll:.GameLogic
 05524b8f659e7bfe5756d1335fec24ba Assembly-CSharp.dll:.upgradeSelection
 bbb17271e41943a8a507a9914b758451 Assembly-CSharp.dll:.MenuControls
 fc1e0f4d8439d9928083474691511a13 UnityEngine.Networking.dll:UnityEngine.Networking.NetworkAnimator

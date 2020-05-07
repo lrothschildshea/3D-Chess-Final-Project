@@ -30,8 +30,9 @@ public class MenuControls : MonoBehaviour {
 
 	private GameObject nextButton;
 	private GameObject prevButton;
-	
-	
+
+	private GameObject mainMenuStats;
+	private GameObject gameOverStats;
 
 	void Start () {
 		welcomeScreen = GameObject.Find("WelcomeScreen");
@@ -46,9 +47,15 @@ public class MenuControls : MonoBehaviour {
 		controlsScreen = GameObject.Find("ControlsScreen");
 		mainScript = GameObject.Find("GameBoard").GetComponent<GameLogic>();
 
+
+
 		nextButton = GameObject.Find("NextButton");
 		prevButton = GameObject.Find("PrevButton");
 		prevButton.SetActive(false);
+
+		mainMenuStats = GameObject.Find("MainMenuButtonNoReload");
+		gameOverStats = GameObject.Find("MainMenuButtonReload");
+		gameOverStats.SetActive(false);
 
 		instructionsIndex = 0;
 		instructions = new String[3];
@@ -64,6 +71,14 @@ public class MenuControls : MonoBehaviour {
 			enablePauseScreen();
 		} else if(Input.GetKeyDown(KeyCode.Escape) && pauseScreen.activeSelf){
 			enableHUD();
+		}
+
+		if(mainScript.gameOver == true){
+			gameOverStats.SetActive(true);
+			mainMenuStats.SetActive(false);
+		}else{
+			gameOverStats.SetActive(false);
+			mainMenuStats.SetActive(true);
 		}
 	}
 

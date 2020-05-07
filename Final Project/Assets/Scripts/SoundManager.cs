@@ -13,23 +13,21 @@ public class SoundManager : MonoBehaviour {
 	public AudioClip loseSong;
 	public AudioClip drawSong;
 	internal AudioSource audioSource;
-	private Coroutine currentRoutine;
     private int counter;
 
 	void Awake () {
 		audioSource = GetComponent<AudioSource>();
-		currentRoutine= null;
         counter = 0;
 	}
 
 	public void playSongAndTitleAfter(AudioClip clip){
         counter++;
-        currentRoutine = StartCoroutine(playAndThenLoop(clip, titleSong, counter));
+        StartCoroutine(playAndThenLoop(clip, titleSong, counter));
     }
 
 	public void playSongAndBackgroundAfter(AudioClip clip){
         counter++;
-        currentRoutine = StartCoroutine(playAndThenLoop(clip, backgroundSong, counter));
+        StartCoroutine(playAndThenLoop(clip, backgroundSong, counter));
     }
 
 	IEnumerator playAndThenLoop(AudioClip song, AudioClip loop, int currentCounter){

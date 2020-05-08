@@ -648,7 +648,14 @@ public class GameLogic : MonoBehaviour {
 								pair[1].GetComponent<Renderer>().material.color = Color.red; 
 							}
 							if(availablePegs.Count == 0){
-								setBottomPrompt("This stand has no moves.");
+                                if (checkState)
+                                {
+                                    setBottomPrompt("This stand has no moves. You are still in check.");
+                                }
+                                else
+                                {
+                                    setBottomPrompt("This stand has no moves.");
+                                }
 							}
 						} else {
 							if(canMoveStand(clicked.transform.parent.gameObject.transform.parent.gameObject) == 10){
@@ -678,7 +685,14 @@ public class GameLogic : MonoBehaviour {
 							setBottomPrompt("Please select a highlighted peg.");
 						}
 						else{
-							setBottomPrompt("The selected stand has no moves.");
+                            if (checkState){
+                                setBottomPrompt("The selected stand has no moves. You are still in check.");
+
+                            }
+                            else
+                            {
+                                setBottomPrompt("The selected stand has no moves.");
+                            }
 						}
 					}
 				}

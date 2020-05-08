@@ -143,6 +143,8 @@ public class GameLogic : MonoBehaviour {
 	public Camera menuCamera;
 	private GameObject forfeitButton;
 
+    private bool checkState;
+
 	// Use this for initialization
 	void Start () {
 		gameStarted = false;
@@ -208,6 +210,7 @@ public class GameLogic : MonoBehaviour {
 		playCaptureNoise = true;
 		mainCamera.enabled = false;
 		menuCamera.enabled = true;
+        checkState = false;
 		forfeitButton = GameObject.Find("ForfeitButton");
         //get lists of objects used throughout the game
         gameBoard = GameObject.Find("GameBoard");
@@ -381,7 +384,6 @@ public class GameLogic : MonoBehaviour {
 		}
 
         if (movesWithOutPawnOrCapture > 50){
-            setBottomPrompt("The last 50 consecutive moves have taken place without the movement of any pawn and without the capture of any piece! Game over.");
             gameOver = true;
 			draw  = true;
         }
@@ -392,14 +394,12 @@ public class GameLogic : MonoBehaviour {
             legalMovePresent = true;
         }
 
-        bool checkState = check(myKing, enemyPieces);
+        checkState = check(myKing, enemyPieces);
         if (!legalMovePresent && checkState){
-            setBottomPrompt("You are in checkmate! Game over.");
             gameOver = true;
 			lightWon = !lightsTurn;
         }
         else if (!legalMovePresent && !checkState){
-            setBottomPrompt("You have enetered a stalemate! Game over.");
             gameOver = true;
 			draw = true;
         }
@@ -558,7 +558,15 @@ public class GameLogic : MonoBehaviour {
 						}
 						colorAvailableTiles(availableMoves);
 						if(availableMoves.Count == 0){
-							setBottomPrompt("This piece has no moves.");
+                            if (checkState)
+                            {
+                                setBottomPrompt("This piece has no moves. You are still in check.");
+                            }
+                            else
+                            {
+
+                                setBottomPrompt("This piece has no moves.");
+                            }
 							return;
 						}
 					}else if(selectedPiece == null && selectedPlatform == null && !myPiece && (isDarkPiece(clicked) || isLightPiece(clicked))){
@@ -613,7 +621,14 @@ public class GameLogic : MonoBehaviour {
 							setBottomPrompt("Please select a highlighted tile.");
 						}
 						else{
-							setBottomPrompt("The selected piece has no moves.");
+                            if (checkState)
+                            {
+                                setBottomPrompt("The selected piece has no moves. You are still in check.");
+                            }
+                            else
+                            {
+                                setBottomPrompt("The selected piece has no moves.");
+                            }
 						}
 						return;
 					}
@@ -890,6 +905,9 @@ public class GameLogic : MonoBehaviour {
 							} else {
 								piece.transform.parent = GameObject.Find("Black Pieces").transform;
 							}
+                            if (piece.name.Contains("Pawn")){
+                                stationaryPawns.Remove(piece);
+                            }
 							
 						}
 					}
